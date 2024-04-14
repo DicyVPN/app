@@ -3,6 +3,7 @@ import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -14,24 +15,25 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   bool _loading = false;
   String _email = '';
-  bool loading = false;
-  String email = "";
-  String password = "";
+  String _password = '';
   bool _passwordVisible = false;
-  bool openDialog = false;
-  String dialogMessage = "";
-  String dialogLink = "";
-  String dialogLinkText = "";
+  bool _openDialog = false;
+  String _dialogMessage = '';
+  String _dialogLink = '';
+  String _dialogLinkText = '';
   final RegExp _emailRegex = RegExp(
       '[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+');
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  void _doSomething() {
-    setState(() {
-      _loading = true;
-      _email = 'hello@test.com';
-    });
+  void _loginAction() {
+    if (!_loading && _formKey.currentState!.validate()) {
+      //login(email, password);
+      setState(() {
+        _loading = true;
+        _email = 'hello@test.com';
+      });
+    }
   }
 
   @override
@@ -72,8 +74,9 @@ class _LoginState extends State<Login> {
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               child: Image.asset(
                                 'assets/images/full_logo.png',
-                                height: 52.0,
+                                height: 52,
                                 fit: BoxFit.contain,
+                                semanticLabel: tr('dicyvpnLogo'),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -86,7 +89,7 @@ class _LoginState extends State<Login> {
                               textInputAction: TextInputAction.next,
                               // TODO change or translate
                               validator: (value) => (_emailRegex.hasMatch(value!)) ? null : "Invalid email address",
-                              onSaved: (value) => email = value!,
+                              onSaved: (value) => _email = value!,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
@@ -98,47 +101,50 @@ class _LoginState extends State<Login> {
                                     _passwordVisible ? Icons.visibility : Icons.visibility_off,
                                   ),
                                   onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
+                                  tooltip: _passwordVisible ? tr('hidePassword') : tr('showPassword'),
                                 ),
                               ),
                               obscureText: !_passwordVisible,
                               keyboardType: _passwordVisible ? TextInputType.visiblePassword : null,
                               validator: (value) =>
                                   (value!.length >= 8) ? null : "Password must be at least 8 characters long",
-                              onSaved: (value) => password = value!,
+                              onSaved: (value) => _password = value!,
                               // TODO: same action as 'login button'
-                              //onFieldSubmitted: (value) => print("hello $str"),
+                              onFieldSubmitted: (value) => _loginAction(),
                             ),
                             const SizedBox(height: 16),
                             Button(
-                              theme: CustomButtonTheme.dark,
-                              color: CustomButtonColor.blue,
-                              size: CustomButtonSize.big,
-                              enabled: !loading,
-                              child: Text(loading ? "Loading..." : "Login"),
-                              onPressed:
-                                  // TODO: do something
-                                  // loading ? null : () => _formKey.currentState!.save() ? login(email, password) : null,
-                                  () => {},
-                            ),
+                                theme: CustomButtonTheme.dark,
+                                color: CustomButtonColor.blue,
+                                size: CustomButtonSize.big,
+                                enabled: !_loading,
+                                onPressed: _loginAction,
+                                child: Text(_loading ? "Loading..." : "Login")),
                             const SizedBox(height: 32),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: <Widget>[
-                                Text(
-                                  tr('createAnAccount'),
-                                  style: const TextStyle(
-                                    color: CustomColors.gray200,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: CustomColors.gray200,
+                                InkWell(
+                                  onTap: () => launchUrlString('https://dicyvpn.com/prices'),
+                                  child: Text(
+                                    tr('createAnAccount'),
+                                    style: const TextStyle(
+                                      color: CustomColors.gray200,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: CustomColors.gray200,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  tr('recoverYourPassword'),
-                                  style: const TextStyle(
-                                    color: CustomColors.gray200,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: CustomColors.gray200,
+                                InkWell(
+                                  onTap: () => launchUrlString('https://dicyvpn.com/login/request-password-reset'),
+                                  child: Text(
+                                    tr('recoverYourPassword'),
+                                    style: const TextStyle(
+                                      color: CustomColors.gray200,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: CustomColors.gray200,
+                                    ),
                                   ),
                                 ),
                               ],
