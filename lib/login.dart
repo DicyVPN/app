@@ -76,7 +76,7 @@ class _LoginState extends State<Login> {
                                 fit: BoxFit.contain,
                               ),
                             ),
-                            const SizedBox(height: 16.0),
+                            const SizedBox(height: 16),
                             TextFormField(
                               decoration: InputDecoration(
                                 labelText: tr('email'),
@@ -88,7 +88,7 @@ class _LoginState extends State<Login> {
                               validator: (value) => (_emailRegex.hasMatch(value!)) ? null : "Invalid email address",
                               onSaved: (value) => email = value!,
                             ),
-                            const SizedBox(height: 16.0),
+                            const SizedBox(height: 16),
                             TextFormField(
                               decoration: InputDecoration(
                                 labelText: tr('password'),
@@ -108,34 +108,37 @@ class _LoginState extends State<Login> {
                               // TODO: same action as 'login button'
                               //onFieldSubmitted: (value) => print("hello $str"),
                             ),
-                            const SizedBox(height: 16.0),
+                            const SizedBox(height: 16),
                             Button(
                               theme: CustomButtonTheme.dark,
                               color: CustomButtonColor.blue,
                               size: CustomButtonSize.big,
-                              enabled: true,
+                              enabled: !loading,
                               child: Text(loading ? "Loading..." : "Login"),
                               onPressed:
                                   // TODO: do something
                                   // loading ? null : () => _formKey.currentState!.save() ? login(email, password) : null,
                                   () => {},
                             ),
-                            const SizedBox(height: 16.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            const SizedBox(height: 32),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: <Widget>[
                                 Text(
-                                  "Create an account",
-                                  style: TextStyle(
-                                    color: Colors.grey[200],
+                                  tr('createAnAccount'),
+                                  style: const TextStyle(
+                                    color: CustomColors.gray200,
                                     decoration: TextDecoration.underline,
+                                    decorationColor: CustomColors.gray200,
                                   ),
                                 ),
+                                const SizedBox(height: 8),
                                 Text(
-                                  "Recover your password",
-                                  style: TextStyle(
-                                    color: Colors.grey[200],
+                                  tr('recoverYourPassword'),
+                                  style: const TextStyle(
+                                    color: CustomColors.gray200,
                                     decoration: TextDecoration.underline,
+                                    decorationColor: CustomColors.gray200,
                                   ),
                                 ),
                               ],
