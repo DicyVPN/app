@@ -1,5 +1,7 @@
+import 'package:dicyvpn/ui/api/api.dart';
 import 'package:dicyvpn/ui/components/button.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,10 +19,6 @@ class _LoginState extends State<Login> {
   String _email = '';
   String _password = '';
   bool _passwordVisible = false;
-  bool _openDialog = false;
-  String _dialogMessage = '';
-  String _dialogLink = '';
-  String _dialogLinkText = '';
   final RegExp _emailRegex = RegExp(
       '[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+');
 
@@ -28,11 +26,8 @@ class _LoginState extends State<Login> {
 
   void _loginAction() {
     if (!_loading && _formKey.currentState!.validate()) {
-      //login(email, password);
-      setState(() {
-        _loading = true;
-        _email = 'hello@test.com';
-      });
+      _formKey.currentState!.save();
+      login(_email, _password);
     }
   }
 
@@ -87,8 +82,7 @@ class _LoginState extends State<Login> {
                               ),
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
-                              // TODO change or translate
-                              validator: (value) => (_emailRegex.hasMatch(value!)) ? null : "Invalid email address",
+                              validator: (value) => (_emailRegex.hasMatch(value!)) ? null : tr('invalidEmailAddress'),
                               onSaved: (value) => _email = value!,
                             ),
                             const SizedBox(height: 16),
@@ -107,9 +101,8 @@ class _LoginState extends State<Login> {
                               obscureText: !_passwordVisible,
                               keyboardType: _passwordVisible ? TextInputType.visiblePassword : null,
                               validator: (value) =>
-                                  (value!.length >= 8) ? null : "Password must be at least 8 characters long",
+                                  (value!.length >= 8) ? null : tr('passwordAtLeast8Characters'),
                               onSaved: (value) => _password = value!,
-                              // TODO: same action as 'login button'
                               onFieldSubmitted: (value) => _loginAction(),
                             ),
                             const SizedBox(height: 16),
@@ -119,7 +112,7 @@ class _LoginState extends State<Login> {
                                 size: CustomButtonSize.big,
                                 enabled: !_loading,
                                 onPressed: _loginAction,
-                                child: Text(_loading ? "Loading..." : "Login")),
+                                child: Text(_loading ? "Loading..." : "Login")), // TODO: translate
                             const SizedBox(height: 32),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,21 +152,97 @@ class _LoginState extends State<Login> {
             ),
           ),
         ),
-        // Center(
-        //   child: Column(
-        //     mainAxisAlignment: MainAxisAlignment.center,
-        //     children: <Widget>[
-        //       Text(
-        //         'LOADING: $_loading\n\nYou have pushed the button this many times:',
-        //       ),
-        //       Text(
-        //         _email,
-        //         style: Theme.of(context).textTheme.headlineMedium,
-        //       ),
-        //     ],
-        //   ),
-        // ),
       ],
+    );
+  }
+
+  void login(String email, String password) async {
+    setState(() {
+      _loading = true;
+    });
+
+    try {
+      final api = await PublicAPI.get();
+      final response = await api.login(email, password);
+
+      // TODO: finish this section
+      // Handle successful login (set auth info, navigate)
+    } on DioException catch (e) {
+      if (e.response != null) {
+        Response response = e.response!;
+        if (response.statusCode == 400 || response.statusCode == 401) {
+          _showDialog(tr('invalidEmailOrPassword')); // TODO: translate
+          return;
+        }
+
+        var errorBody = response.data;
+        try {
+          var reply = errorBody['reply'];
+          switch (reply['code']) {
+            case 'NO_SUBSCRIPTION':
+              _showDialog(
+                tr('noActiveSubscription'),
+                link: tr('urlPrices'),
+                linkText: tr('takeALookAtOurPlans'),
+              );
+              break;
+            case 'DEVICES_LIMIT_REACHED':
+              _showDialog(
+                tr('reachedTheMaximumNumberOfDevices'),
+                link: tr('urlAccount'),
+                linkText: tr('checkYourDevicesList'),
+              );
+              break;
+            default:
+              _showDialog(reply['message']);
+          }
+        } catch (e) {
+          _showDialog('Unknown error, please try again\n\n$e'); // TODO: translate
+        }
+      } else {
+        _showDialog('Unknown network error, please try again\n\n${e.message}'); // TODO: translate
+      }
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
+  void _showDialog(String message, {String? link, String? linkText}) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(message),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            if (link != null)
+              TextButton(
+                child: Text(tr('dialogClose')),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            TextButton(
+              child: Text(linkText ?? tr('dialogClose')),
+              onPressed: () {
+                if (link != null) {
+                  launchUrlString(link);
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
