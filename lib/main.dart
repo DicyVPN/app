@@ -1,6 +1,8 @@
 import 'package:dicyvpn/login.dart';
+import 'package:dicyvpn/ui/components/button.dart';
 import 'package:dicyvpn/ui/theme/theme.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
+import 'package:dicyvpn/utils/navigation_key.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -32,12 +34,29 @@ class DicyVPN extends StatelessWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
+      navigatorKey: navigationKey,
       initialRoute: '/startup',
       routes: {
         '/startup': (context) => const Startup(),
         '/login': (context) => const Login(),
         '/logout': (context) => const Text('logout page'),
-        '/home': (context) => const Text('home page'),
+        '/home': (context) => Scaffold(
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    const Text('home page'),
+                    Button(
+                        onPressed: () {
+                          //API.logout();
+                        },
+                        theme: CustomButtonTheme.dark,
+                        color: CustomButtonColor.red,
+                        size: CustomButtonSize.big,
+                        child: const Text('Logout')),
+                  ],
+                ),
+              ),
+            ),
       },
     );
   }

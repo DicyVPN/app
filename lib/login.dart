@@ -27,7 +27,7 @@ class _LoginState extends State<Login> {
   void _loginAction() {
     if (!_loading && _formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      login(_email, _password);
+      login(Navigator.of(context), _email, _password);
     }
   }
 
@@ -101,8 +101,7 @@ class _LoginState extends State<Login> {
                                 ),
                                 obscureText: !_passwordVisible,
                                 keyboardType: _passwordVisible ? TextInputType.visiblePassword : null,
-                                validator: (value) =>
-                                    (value!.length >= 8) ? null : tr('passwordAtLeast8Characters'),
+                                validator: (value) => (value!.length >= 8) ? null : tr('passwordAtLeast8Characters'),
                                 onSaved: (value) => _password = value!,
                                 onFieldSubmitted: (value) => _loginAction(),
                               ),
@@ -158,7 +157,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void login(String email, String password) async {
+  void login(NavigatorState navigatorState, String email, String password) async {
     setState(() {
       _loading = true;
     });
@@ -166,44 +165,41 @@ class _LoginState extends State<Login> {
     try {
       final api = await PublicAPI.get();
       final response = await api.login(email, password);
-
-      // TODO: finish this section
-      // Handle successful login (set auth info, navigate)
+      await API.setAuthInfo(response.headers);
+      navigatorState.popAndPushNamed('/home');
     } on DioException catch (e) {
       if (e.response != null) {
         Response response = e.response!;
         if (response.statusCode == 400 || response.statusCode == 401) {
-          _showDialog(tr('invalidEmailOrPassword')); // TODO: translate
+          _showDialog(tr('invalidEmailOrPassword'));
           return;
         }
 
         var errorBody = response.data;
-        try {
-          var reply = errorBody['reply'];
-          switch (reply['code']) {
-            case 'NO_SUBSCRIPTION':
-              _showDialog(
-                tr('noActiveSubscription'),
-                link: tr('urlPrices'),
-                linkText: tr('takeALookAtOurPlans'),
-              );
-              break;
-            case 'DEVICES_LIMIT_REACHED':
-              _showDialog(
-                tr('reachedTheMaximumNumberOfDevices'),
-                link: tr('urlAccount'),
-                linkText: tr('checkYourDevicesList'),
-              );
-              break;
-            default:
-              _showDialog(reply['message']);
-          }
-        } catch (e) {
-          _showDialog('Unknown error, please try again\n\n$e'); // TODO: translate
+        var reply = errorBody['reply'];
+        switch (reply['code']) {
+          case 'NO_SUBSCRIPTION':
+            _showDialog(
+              tr('noActiveSubscription'),
+              link: tr('urlPrices'),
+              linkText: tr('takeALookAtOurPlans'),
+            );
+            break;
+          case 'DEVICES_LIMIT_REACHED':
+            _showDialog(
+              tr('reachedTheMaximumNumberOfDevices'),
+              link: tr('urlAccount'),
+              linkText: tr('checkYourDevicesList'),
+            );
+            break;
+          default:
+            _showDialog(reply['message']);
         }
       } else {
         _showDialog('Unknown network error, please try again\n\n${e.message}'); // TODO: translate
       }
+    } catch (e) {
+      _showDialog('Unknown error, please try again\n\n$e');
     } finally {
       setState(() {
         _loading = false;
