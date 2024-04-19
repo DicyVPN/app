@@ -144,12 +144,17 @@ class API {
               });
 
               _setNewToken(refreshResponse.headers);
-              log('Token has been refreshed, retrying request', name: _tag);
-              return handler.resolve(await dio.fetch(error.requestOptions));
             } on DioException {
               log('Failed to refresh token, logging out', name: _tag);
               await _removeAuthInfo();
               return handler.next(error);
+            }
+
+            log('Token has been refreshed, retrying request', name: _tag);
+            try {
+              return handler.resolve(await dio.fetch(error.requestOptions));
+            } on DioException catch (e) {
+              return handler.next(e);
             }
           }
           return handler.next(error);
