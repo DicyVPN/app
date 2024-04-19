@@ -7,6 +7,7 @@
   "email": "Email",
   "password": "Password",
   "login": "Login",
+  "loginLoggedOut": "Logged out",
   "createAnAccount": "Create an account",
   "recoverYourPassword": "Recover your password",
   "hidePassword": "Hide password",
@@ -42,5 +43,6 @@
   "secondaryServersAlertAgree": "Don't show again",
   "chooseAServerFromTheList": "Choose a server to connect to from the list",
   "urlPrices": "https://dicyvpn.com/prices",
-  "urlAccount": "https://dicyvpn.com/account"
+  "urlAccount": "https://dicyvpn.com/account",
+  "sessionExpiredLoginAgain": "Your session has expired, please login again"
 }

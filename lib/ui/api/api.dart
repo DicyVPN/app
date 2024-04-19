@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
 import 'package:dicyvpn/utils/navigation_key.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -96,7 +97,7 @@ class API {
     log('Token has been set, accountId: $accountId', name: _tag);
   }
 
-  static Future<void> removeAuthInfo() async {
+  static Future<void> removeAuthInfo({String? reason}) async {
     var storage = getStorage();
     await Future.wait([
       storage.delete(key: 'auth.token'),
@@ -106,8 +107,7 @@ class API {
       storage.delete(key: 'auth.privateKey'),
     ]);
 
-    // TODO: pass data to the login route to show an alert or something similar if possible
-    navigationKey.currentState?.pushNamedAndRemoveUntil('/login', (route) => false);
+    navigationKey.currentState?.pushNamedAndRemoveUntil('/login', (route) => false, arguments: reason);
   }
 
   static Future<void> _setNewToken(Headers headers) {
@@ -150,7 +150,7 @@ class API {
               _setNewToken(refreshResponse.headers);
             } on DioException {
               log('Failed to refresh token, logging out', name: _tag);
-              await removeAuthInfo();
+              await removeAuthInfo(reason: tr('sessionExpiredLoginAgain'));
               return handler.next(error);
             }
 

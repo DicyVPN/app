@@ -4,6 +4,7 @@ import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -15,6 +16,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  bool _hasShownRedirectReason = false;
   bool _loading = false;
   String _email = '';
   String _password = '';
@@ -33,6 +35,17 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_hasShownRedirectReason) {
+      final args = ModalRoute.of(context)!.settings.arguments;
+      if (args != null) {
+        final redirectReason = args as String;
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          _showDialog(title: tr('loginLoggedOut'), redirectReason);
+        });
+      }
+      _hasShownRedirectReason = true;
+    }
+
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -207,12 +220,13 @@ class _LoginState extends State<Login> {
     }
   }
 
-  void _showDialog(String message, {String? link, String? linkText}) async {
+  void _showDialog(String message, {String? title, String? link, String? linkText}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
+          title: title == null ? null : Text(title),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
