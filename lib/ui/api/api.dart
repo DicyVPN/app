@@ -6,7 +6,10 @@ import 'package:dicyvpn/utils/encrypted_storage.dart';
 import 'package:dicyvpn/utils/navigation_key.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
+part 'api.g.dart';
 
 const _baseUrl = 'https://api.dicyvpn.com';
 const _tag = 'DicyVPN/API';
@@ -61,6 +64,11 @@ class API {
 
   static String? _token;
   final Dio dio;
+
+  Future<ServerList> getServersList() async {
+    var response = await dio.get('/servers/list');
+    return ServerList.fromJson(response.data);
+  }
 
   static Future<void> setAuthInfo(Headers headers) async {
     _token = headers.value('X-Auth-Token');
@@ -151,6 +159,54 @@ class API {
 
     return dio;
   }
+}
+
+enum ServerType {
+  primary,
+  secondary;
+}
+
+@JsonSerializable()
+class Server {
+  @JsonKey(fromJson: _stringOrIntToString)
+  final String id;
+  final String name;
+  final ServerType type;
+  final String country;
+  final String city;
+  final double load;
+
+  Server({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.country,
+    required this.city,
+    required this.load,
+  });
+
+  factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);
+  Map<String, dynamic> toJson() => _$ServerToJson(this);
+
+  static String _stringOrIntToString(dynamic value) {
+    if (value is int) {
+      return value.toString();
+    } else if (value is String) {
+      return value;
+    } else {
+      throw ArgumentError('Invalid type for id: $value');
+    }
+  }
+}
+
+@JsonSerializable()
+class ServerList {
+  final Map<String, List<Server>> primary;
+  final Map<String, List<Server>> secondary;
+
+  ServerList(this.primary, this.secondary);
+
+  factory ServerList.fromJson(Map<String, dynamic> json) => _$ServerListFromJson(json);
 }
 
 Future<String> _getUserAgent() async {
