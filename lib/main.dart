@@ -1,4 +1,5 @@
 import 'package:dicyvpn/login.dart';
+import 'package:dicyvpn/logout.dart';
 import 'package:dicyvpn/ui/components/button.dart';
 import 'package:dicyvpn/ui/theme/theme.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
@@ -39,7 +40,7 @@ class DicyVPN extends StatelessWidget {
       routes: {
         '/startup': (context) => const Startup(),
         '/login': (context) => const Login(),
-        '/logout': (context) => const Text('logout page'),
+        '/logout': (context) => const Logout(),
         '/home': (context) => Scaffold(
               body: SafeArea(
                 child: Column(
@@ -47,7 +48,7 @@ class DicyVPN extends StatelessWidget {
                     const Text('home page'),
                     Button(
                         onPressed: () {
-                          //API.logout();
+                          Navigator.pushNamed(context, '/logout');
                         },
                         theme: CustomButtonTheme.dark,
                         color: CustomButtonColor.red,

@@ -70,6 +70,10 @@ class API {
     return ServerList.fromJson(response.data);
   }
 
+  Future<Response> logout() {
+    return dio.get('/logout');
+  }
+
   static Future<void> setAuthInfo(Headers headers) async {
     _token = headers.value('X-Auth-Token');
     var refreshToken = headers.value('X-Auth-Refresh-Token');
@@ -92,7 +96,7 @@ class API {
     log('Token has been set, accountId: $accountId', name: _tag);
   }
 
-  static Future<void> _removeAuthInfo() async {
+  static Future<void> removeAuthInfo() async {
     var storage = getStorage();
     await Future.wait([
       storage.delete(key: 'auth.token'),
@@ -103,7 +107,7 @@ class API {
     ]);
 
     // TODO: pass data to the login route to show an alert or something similar if possible
-    navigationKey.currentState?.popAndPushNamed('/login');
+    navigationKey.currentState?.pushNamedAndRemoveUntil('/login', (route) => false);
   }
 
   static Future<void> _setNewToken(Headers headers) {
@@ -146,7 +150,7 @@ class API {
               _setNewToken(refreshResponse.headers);
             } on DioException {
               log('Failed to refresh token, logging out', name: _tag);
-              await _removeAuthInfo();
+              await removeAuthInfo();
               return handler.next(error);
             }
 
@@ -191,7 +195,6 @@ class Server {
   });
 
   factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);
-  Map<String, dynamic> toJson() => _$ServerToJson(this);
 
   static String _stringOrIntToString(dynamic value) {
     if (value is int) {
