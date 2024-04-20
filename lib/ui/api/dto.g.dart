@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'api.dart';
+part of 'dto.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -50,4 +50,46 @@ Map<String, dynamic> _$ServerListToJson(ServerList instance) =>
     <String, dynamic>{
       'primary': instance.primary,
       'secondary': instance.secondary,
+    };
+
+ConnectionInfo _$ConnectionInfoFromJson(Map<String, dynamic> json) =>
+    ConnectionInfo(
+      json['serverIp'] as String,
+      json['publicKey'] as String,
+      json['privateKey'] as String?,
+      json['internalIp'] as String,
+      ConnectionPorts.fromJson(json['ports'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$ConnectionInfoToJson(ConnectionInfo instance) =>
+    <String, dynamic>{
+      'serverIp': instance.serverIp,
+      'publicKey': instance.publicKey,
+      'privateKey': instance.privateKey,
+      'internalIp': instance.internalIp,
+      'ports': instance.ports,
+    };
+
+ConnectionPorts _$ConnectionPortsFromJson(Map<String, dynamic> json) =>
+    ConnectionPorts(
+      ProtocolPorts.fromJson(json['wireguard'] as Map<String, dynamic>),
+      ProtocolPorts.fromJson(json['openvpn'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$ConnectionPortsToJson(ConnectionPorts instance) =>
+    <String, dynamic>{
+      'wireguard': instance.wireguard,
+      'openvpn': instance.openvpn,
+    };
+
+ProtocolPorts _$ProtocolPortsFromJson(Map<String, dynamic> json) =>
+    ProtocolPorts(
+      (json['udp'] as List<dynamic>).map((e) => e as int).toList(),
+      (json['tcp'] as List<dynamic>).map((e) => e as int).toList(),
+    );
+
+Map<String, dynamic> _$ProtocolPortsToJson(ProtocolPorts instance) =>
+    <String, dynamic>{
+      'udp': instance.udp,
+      'tcp': instance.tcp,
     };

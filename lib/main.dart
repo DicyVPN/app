@@ -1,7 +1,6 @@
 import 'package:dicyvpn/home.dart';
 import 'package:dicyvpn/login.dart';
 import 'package:dicyvpn/logout.dart';
-import 'package:dicyvpn/ui/components/button.dart';
 import 'package:dicyvpn/ui/theme/theme.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
 import 'package:dicyvpn/utils/navigation_key.dart';
