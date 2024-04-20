@@ -68,6 +68,8 @@ class ConnectionPorts {
   final ProtocolPorts openvpn;
 
   ConnectionPorts(this.wireguard, this.openvpn);
+
+  factory ConnectionPorts.fromJson(Map<String, dynamic> json) => _$ConnectionPortsFromJson(json);
 }
 
 @JsonSerializable()
@@ -76,4 +78,6 @@ class ProtocolPorts {
   final List<int> tcp;
 
   ProtocolPorts(this.udp, this.tcp);
+
+  factory ProtocolPorts.fromJson(Map<String, dynamic> json) => _$ProtocolPortsFromJson(json);
 }
