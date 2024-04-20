@@ -76,7 +76,7 @@ class _LogoutState extends State<Logout> {
     } on DioException catch (e) {
       if (e.response != null) {
         Response response = e.response!;
-        log("Received error: ${response.data.toString()}", name: 'DicyVPN/Logout');
+        log("Received error: ${response.data.toString()}", name: 'DicyVPN/Logout', error: e);
 
         if (!mounted) {
           return;
