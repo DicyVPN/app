@@ -1,11 +1,16 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:dicyvpn/home.dart';
 import 'package:dicyvpn/login.dart';
 import 'package:dicyvpn/logout.dart';
 import 'package:dicyvpn/ui/theme/theme.dart';
+import 'package:dicyvpn/utils/deserialize_preferences.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
 import 'package:dicyvpn/utils/navigation_key.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,15 +57,48 @@ class Startup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var storage = getStorage();
-    storage.containsKey(key: 'auth.refreshToken').then((value) {
-      if (value) {
-        Navigator.popAndPushNamed(context, '/home');
-      } else {
-        Navigator.popAndPushNamed(context, '/login');
-      }
-    });
+    _loadAuthInfoAndNavigate();
 
     return const Center(); // empty widget
+  }
+
+  void _loadAuthInfoAndNavigate() async {
+    var storage = getStorage();
+    storage.containsKey(key: 'auth.refreshToken').then((hasRefreshToken) async {
+      if (hasRefreshToken) {
+        navigationKey.currentState?.popAndPushNamed('/home');
+      } else {
+        // get auth data from a previous version of the app
+        if (Platform.isAndroid) {
+          try {
+            final directory = await getApplicationSupportDirectory();
+            final datastore = File('${directory.path}/datastore/settings.preferences_pb');
+            if (directory.existsSync() && datastore.existsSync()) {
+              var preferences = deserializePreferencesFile(datastore);
+              if (preferences.containsKey('auth.refreshToken')) {
+                log('Old preferences file contains auth info, moving to the encrypted storage',
+                    name: 'DicyVPN/Startup');
+                await Future.wait([
+                  storage.write(key: 'auth.token', value: preferences['auth.token']),
+                  storage.write(key: 'auth.refreshToken', value: preferences['auth.refreshToken']),
+                  storage.write(key: 'auth.refreshTokenId', value: preferences['auth.refreshTokenId']),
+                  storage.write(key: 'auth.accountId', value: preferences['auth.accountId']),
+                  storage.write(key: 'auth.privateKey', value: preferences['auth.privateKey']),
+                ]);
+                // remove old auth data
+                datastore.delete();
+                navigationKey.currentState?.popAndPushNamed('/home');
+                return;
+              }
+            } else {
+              log('Old preferences file not found', name: 'DicyVPN/Startup');
+            }
+          } catch (e) {
+            log('Error occurred while trying to import old auth info', name: 'DicyVPN/Startup', error: e);
+          }
+        }
+        navigationKey.currentState?.popAndPushNamed('/login');
+      }
+    });
   }
 }
