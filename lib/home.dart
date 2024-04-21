@@ -25,13 +25,15 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            const SliverPadding(padding: EdgeInsets.only(bottom: 16)),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverToBoxAdapter(
-                child: Column(
+        //           color: CustomColors.gray800,
+        //           elevation: 4,
+        //           textStyle: const TextStyle(color: CustomColors.gray200),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Button(
@@ -47,52 +49,39 @@ class _HomeState extends State<Home> {
                     ),
                   ],
                 ),
-              ),
-            ),
-            const SliverPadding(padding: EdgeInsets.symmetric(vertical: 4)),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    return Container(
-                      height: 50,
-                      color: Colors.amber,
-                      child: Center(child: Text('Entry ${primaryServersKeys[index]}')),
-                    );
-                  },
-                  childCount: primaryServersKeys.length,
-                ),
-              ),
-            ),
-            const SliverPadding(padding: EdgeInsets.symmetric(vertical: 4)),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverToBoxAdapter(
-                child: Padding(
+                const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
+                ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: primaryServersKeys.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        height: 50,
+                        color: Colors.amber,
+                        child: Center(child: Text('Entry ${primaryServersKeys[index]}')),
+                      );
+                    }),
+                const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   child: Text(tr('otherServers')),
                 ),
-              ),
-            ),
-            const SliverPadding(padding: EdgeInsets.symmetric(vertical: 4)),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
+                const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
+                ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: secondaryServersKeys.length,
+                  itemBuilder: (BuildContext context, int index) {
                     return Container(
                       height: 50,
                       color: Colors.amber,
                       child: Center(child: Text('Secondary: ${secondaryServersKeys[index]}')),
                     );
                   },
-                  childCount: secondaryServersKeys.length,
                 ),
-              ),
+              ],
             ),
-            const SliverPadding(padding: EdgeInsets.only(top: 16))
-          ],
+          ),
         ),
       ),
     );
