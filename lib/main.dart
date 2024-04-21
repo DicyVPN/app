@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dicyvpn/home.dart';
 import 'package:dicyvpn/login.dart';
 import 'package:dicyvpn/logout.dart';
+import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:dicyvpn/ui/theme/theme.dart';
 import 'package:dicyvpn/utils/deserialize_preferences.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
@@ -59,7 +60,9 @@ class Startup extends StatelessWidget {
   Widget build(BuildContext context) {
     _loadAuthInfoAndNavigate();
 
-    return const Center(); // empty widget
+    return Container( // empty widget
+      color: CustomColors.gray800,
+    );
   }
 
   void _loadAuthInfoAndNavigate() async {
