@@ -1,6 +1,7 @@
 import 'package:dicyvpn/ui/api/api.dart';
 import 'package:dicyvpn/ui/components/button.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
+import 'package:dicyvpn/utils/dialogs.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class _LoginState extends State<Login> {
       if (args != null) {
         final redirectReason = args as String;
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          _showDialog(title: tr('loginLoggedOut'), redirectReason);
+          openDialog(title: tr('loginLoggedOut'), redirectReason);
         });
       }
       _hasShownRedirectReason = true;
@@ -184,7 +185,7 @@ class _LoginState extends State<Login> {
       if (e.response != null) {
         Response response = e.response!;
         if (response.statusCode == 400 || response.statusCode == 401) {
-          _showDialog(tr('invalidEmailOrPassword'));
+          openDialog(tr('invalidEmailOrPassword'));
           return;
         }
 
@@ -192,69 +193,31 @@ class _LoginState extends State<Login> {
         var reply = errorBody['reply'];
         switch (reply['code']) {
           case 'NO_SUBSCRIPTION':
-            _showDialog(
+            openDialog(
               tr('noActiveSubscription'),
               link: tr('urlPrices'),
               linkText: tr('takeALookAtOurPlans'),
             );
             break;
           case 'DEVICES_LIMIT_REACHED':
-            _showDialog(
+            openDialog(
               tr('reachedTheMaximumNumberOfDevices'),
               link: tr('urlAccount'),
               linkText: tr('checkYourDevicesList'),
             );
             break;
           default:
-            _showDialog(reply['message']);
+            openDialog(reply['message']);
         }
       } else {
-        _showDialog('Unknown network error, please try again\n\n${e.message}'); // TODO: translate
+        openDialog('Unknown network error, please try again\n\n${e.message}'); // TODO: translate
       }
     } catch (e) {
-      _showDialog('Unknown error, please try again\n\n$e');
+      openDialog('Unknown error, please try again\n\n$e');
     } finally {
       setState(() {
         _loading = false;
       });
     }
-  }
-
-  void _showDialog(String message, {String? title, String? link, String? linkText}) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: title == null ? null : Text(title),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(message),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            if (link != null)
-              TextButton(
-                child: Text(tr('dialogClose')),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            TextButton(
-              child: Text(linkText ?? tr('dialogClose')),
-              onPressed: () {
-                if (link != null) {
-                  launchUrlString(link);
-                } else {
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 }
