@@ -8,6 +8,8 @@ import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+const _backgroundColor = CustomColors.gray800;
+
 class Home extends StatelessWidget {
   const Home({super.key});
 
@@ -19,7 +21,7 @@ class Home extends StatelessWidget {
           height: double.infinity,
           width: double.infinity,
           child: Material(
-            color: CustomColors.gray800,
+            color: _backgroundColor,
             elevation: 4,
             textStyle: TextStyle(color: CustomColors.gray200),
             child: SingleChildScrollView(
@@ -47,6 +49,7 @@ class ServerSelector extends StatefulWidget {
 class _ServerSelectorState extends State<ServerSelector> {
   late Future<ServerList> _fetchServersFuture;
   Key _refreshKey = UniqueKey();
+  String? _expandedCountry;
 
   @override
   void initState() {
@@ -95,23 +98,48 @@ class _ServerSelectorState extends State<ServerSelector> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 child: Text(tr('otherServers')),
               ),
-              ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: secondaryServersKeys.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
+              ExpansionPanelList(
+                expansionCallback: (int index, bool isExpanded) {
+                  setState(() {
+                    _expandedCountry = isExpanded ? secondaryServersKeys[index] : null;
+                  });
+                },
+                elevation: 0,
+                expandIconColor: CustomColors.gray200,
+                dividerColor: CustomColors.gray600,
+                expandedHeaderPadding: EdgeInsets.zero,
+                materialGapSize: 1,
+                children: secondaryServers.entries.map<ExpansionPanel>((MapEntry<String, List<Server>> entry) {
+                  var country = entry.key;
+                  return ExpansionPanel(
+                    backgroundColor: _backgroundColor,
+                    headerBuilder: (BuildContext context, bool isExpanded) {
+                      return InkWell(
+                        splashFactory: NoSplash.splashFactory,
+                        highlightColor: CustomColors.gray700,
+                        onTap: () => setState(() {
+                          if (_expandedCountry == country) {
+                            _expandedCountry = null;
+                          } else {
+                            _expandedCountry = country;
+                          }
+                        }),
+                        child: ListTile(
+                          title: Text(country),
+                        ),
+                      );
+                    },
+                    body: Column(
                       children: [
-                        for (var server in secondaryServers[secondaryServersKeys[index]]!) ...[
+                        for (var server in entry.value) ...[
                           const Padding(padding: EdgeInsets.only(top: 2)),
                           ServerWidget(server),
                         ]
                       ],
                     ),
+                    isExpanded: _expandedCountry == country,
                   );
-                },
+                }).toList(),
               ),
             ],
           );
