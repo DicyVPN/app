@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dicyvpn/ui/api/api.dart';
 import 'package:dicyvpn/ui/api/dto.dart';
 import 'package:dicyvpn/ui/components/button.dart';
+import 'package:dicyvpn/ui/components/server_widget.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -94,16 +95,21 @@ class _ServerSelectorState extends State<ServerSelector> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 child: Text(tr('otherServers')),
               ),
-              const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
               ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: secondaryServersKeys.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    height: 50,
-                    color: Colors.amber,
-                    child: Center(child: Text('Secondary: ${secondaryServersKeys[index]}')),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      children: [
+                        for (var server in secondaryServers[secondaryServersKeys[index]]!) ...[
+                          const Padding(padding: EdgeInsets.only(top: 2)),
+                          ServerWidget(server),
+                        ]
+                      ],
+                    ),
                   );
                 },
               ),
@@ -145,43 +151,5 @@ class _ServerSelectorState extends State<ServerSelector> {
 
   Future<ServerList> _fetchServers() {
     return API.get().then((api) => api.getServersList());
-  }
-}
-
-class ServerWidget extends StatelessWidget {
-  final Server server;
-
-  const ServerWidget(this.server, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: CustomColors.gray900,
-      borderRadius: BorderRadius.circular(4),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Text(server.city),
-            const Spacer(),
-            const SizedBox(width: 8),
-            Container(
-              height: 6,
-              width: 6,
-              decoration: BoxDecoration(color: _getLoadColor(), borderRadius: BorderRadius.circular(1)),
-            ),
-            const SizedBox(width: 8),
-            Text(server.name),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getLoadColor() {
-    if (server.load > 0.85) return CustomColors.loadRed;
-    if (server.load > 0.65) return CustomColors.loadOrange;
-    if (server.load > 0.45) return CustomColors.loadYellow;
-    return CustomColors.loadGreen;
   }
 }
