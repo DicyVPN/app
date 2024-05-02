@@ -9,6 +9,7 @@ import 'package:dicyvpn/ui/theme/theme.dart';
 import 'package:dicyvpn/utils/deserialize_preferences.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
 import 'package:dicyvpn/utils/navigation_key.dart';
+import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -16,6 +17,7 @@ import 'package:path_provider/path_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  await VPN.initialize();
 
   runApp(
     EasyLocalization(

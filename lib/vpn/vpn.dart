@@ -13,20 +13,29 @@ import 'package:wireguard_flutter/wireguard_flutter_platform_interface.dart';
 class VPN {
   static VPN? _instance;
 
-  static Future<VPN> get() async {
+  static Future<void> initialize() async {
     if (_instance == null) {
       final wireGuard = WireGuardFlutter.instance;
-      await wireGuard.initialize(interfaceName: 'dicyvpn');
-      _instance = VPN._internal(wireGuard);
+      Server? lastServer = await _getLastServer();
+      _instance = VPN._internal(wireGuard, lastServer);
+    }
+  }
+
+  static VPN get() {
+    if (_instance == null) {
+      throw StateError('Must call VPN.initialize() before calling VPN.get()');
     }
     return _instance!;
   }
 
-  VPN._internal(this._wireGuard) {
+  VPN._internal(this._wireGuard, Server? lastServer) {
     _wireGuard.vpnStageSnapshot.listen(_handleVpnStageChange);
+    this.lastServer = ValueNotifier(lastServer);
+    this.lastServer.addListener(_onLastServerChanged);
   }
 
   final ValueNotifier<Status> status = ValueNotifier(Status.disconnected);
+  late final ValueNotifier<Server?> lastServer;
   final WireGuardFlutterInterface _wireGuard;
   final String _tag = 'DicyVPN/VPN';
   final List<void Function()> _waitForStoppedCallbacks = List.empty(growable: true);
@@ -95,6 +104,7 @@ class VPN {
     var config = _getWireGuardConfig(info, endpoint, privateKey!, packageInfo.packageName);
     log('WireGuard config: $config', name: _tag);
 
+    await _wireGuard.initialize(interfaceName: 'dicyvpn');
     _wireGuard.startVpn(
       serverAddress: endpoint,
       wgQuickConfig: config,
@@ -166,6 +176,33 @@ class VPN {
 
     _waitForStoppedCallbacks.add(callback);
   }
+
+  void _onLastServerChanged() {
+    Server? newValue = lastServer.value;
+    if (newValue != null) {
+      var storage = getStorage();
+      storage.write(key: 'lastServer.id', value: newValue.id);
+      storage.write(key: 'lastServer.name', value: newValue.name);
+      storage.write(key: 'lastServer.type', value: newValue.type.name);
+      storage.write(key: 'lastServer.country', value: newValue.country);
+      storage.write(key: 'lastServer.city', value: newValue.city);
+    }
+  }
 }
 
 class NoSubscriptionException implements Exception {}
+
+Future<Server?> _getLastServer() async {
+  var storage = getStorage();
+  var id = await storage.read(key: 'lastServer.id');
+  if (id == null) {
+    return null;
+  }
+
+  var name = await storage.read(key: 'lastServer.name');
+  var type = ServerType.values.byName((await storage.read(key: 'lastServer.type'))!);
+  var country = await storage.read(key: 'lastServer.country');
+  var city = await storage.read(key: 'lastServer.city');
+  log('Loaded last server: $id, $name, $type, $country, $city');
+  return Server(id: id, name: name!, type: type, country: country!, city: city!, load: 0.0);
+}
