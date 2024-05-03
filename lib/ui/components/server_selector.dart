@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:country_picker/country_picker.dart';
 import 'package:dicyvpn/ui/api/api.dart';
 import 'package:dicyvpn/ui/api/dto.dart';
 import 'package:dicyvpn/ui/components/button.dart';
@@ -10,9 +11,7 @@ import 'package:flutter/material.dart';
 import 'server_widget.dart';
 
 class ServerSelector extends StatefulWidget {
-  final Color backgroundColor;
-
-  const ServerSelector(this.backgroundColor, {super.key});
+  const ServerSelector({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -86,7 +85,7 @@ class _ServerSelectorState extends State<ServerSelector> {
                 children: secondaryServers.entries.map<ExpansionPanel>((MapEntry<String, List<Server>> entry) {
                   var country = entry.key;
                   return ExpansionPanel(
-                    backgroundColor: widget.backgroundColor,
+                    backgroundColor: Colors.transparent,
                     headerBuilder: (BuildContext context, bool isExpanded) {
                       return InkWell(
                         splashFactory: NoSplash.splashFactory,
@@ -99,7 +98,13 @@ class _ServerSelectorState extends State<ServerSelector> {
                           }
                         }),
                         child: ListTile(
-                          title: Text(country),
+                          title: Row(
+                            children: [
+                              Flag(country: country),
+                              const SizedBox(width: 8),
+                              Text(CountryLocalizations.of(context)?.countryName(countryCode: country) ?? country),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -120,7 +125,7 @@ class _ServerSelectorState extends State<ServerSelector> {
         } else if (snapshot.hasError) {
           log('Failed to get servers list', name: 'DicyVPN/Home', error: snapshot.error);
           return Padding(
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 32),
             child: Column(
               children: [
                 Text(tr('cannotLoadServers'),
@@ -143,9 +148,15 @@ class _ServerSelectorState extends State<ServerSelector> {
           );
         }
 
-        return const Padding(
-          padding: EdgeInsets.all(32),
-          child: LinearProgressIndicator(),
+        var verticalPadding = MediaQuery.of(context).size.height / 2.5;
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 32),
+              child: const LinearProgressIndicator(),
+            ),
+          ],
         );
       },
     );
