@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:country_picker/country_picker.dart';
 import 'package:dicyvpn/home.dart';
 import 'package:dicyvpn/login.dart';
 import 'package:dicyvpn/logout.dart';
@@ -12,6 +13,7 @@ import 'package:dicyvpn/utils/navigation_key.dart';
 import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages -- will be removed after 2-3 versions
 import 'package:path_provider/path_provider.dart';
 
@@ -22,9 +24,10 @@ void main() async {
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en', 'US'), Locale('de', 'DE')],
+      supportedLocales: const [Locale('en', 'US'), Locale('it', 'IT')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en', 'US'),
+      useFallbackTranslations: true,
       child: const DicyVPN(),
     ),
   );
@@ -41,7 +44,10 @@ class DicyVPN extends StatelessWidget {
         colorScheme: customColorScheme,
         useMaterial3: true,
       ),
-      localizationsDelegates: context.localizationDelegates,
+      localizationsDelegates: [
+        ...context.localizationDelegates,
+        CountryLocalizations.delegate,
+      ],
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       navigatorKey: navigationKey,
