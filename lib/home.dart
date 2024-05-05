@@ -1,6 +1,9 @@
+import 'package:dicyvpn/ui/api/dto.dart';
 import 'package:dicyvpn/ui/components/server_selector.dart';
 import 'package:dicyvpn/ui/components/status_card.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
+import 'package:dicyvpn/vpn/status.dart';
+import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -8,10 +11,12 @@ class Home extends StatelessWidget {
 
   static const _backgroundColor = CustomColors.gray800;
   static const _textColor = CustomColors.gray200;
+  static ValueNotifier<Status> statusNotifier = VPN.get().status;
+  static ValueNotifier<Server?> lastServerNotifier = VPN.get().lastServer;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -19,17 +24,23 @@ class Home extends StatelessWidget {
               Material(
                 color: _backgroundColor,
                 elevation: 4,
-                textStyle: TextStyle(color: _textColor),
+                textStyle: const TextStyle(color: _textColor),
                 child: SizedBox(
                   width: double.maxFinite,
                   child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: StatusCard(_backgroundColor, _textColor),
+                    padding: const EdgeInsets.all(16),
+                    child: StatusCard(
+                      _backgroundColor,
+                      _textColor,
+                      statusNotifier: statusNotifier,
+                      lastServerNotifier: lastServerNotifier,
+                      buttonAction: _onStatusCardButtonClick,
+                    ),
                   ),
                 ),
               ),
-              SizedBox(height: 8),
-              Material(
+              const SizedBox(height: 8),
+              const Material(
                 color: _backgroundColor,
                 elevation: 4,
                 textStyle: TextStyle(color: _textColor),
@@ -43,5 +54,13 @@ class Home extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onStatusCardButtonClick() {
+    if (statusNotifier.value == Status.connected) {
+      VPN.get().stop(false, lastServerNotifier.value);
+    } else {
+      VPN.get().connect(lastServerNotifier.value!, lastServerNotifier.value);
+    }
   }
 }

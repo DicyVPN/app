@@ -1,7 +1,7 @@
+import 'package:dicyvpn/ui/api/dto.dart';
 import 'package:dicyvpn/ui/components/button.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:dicyvpn/vpn/status.dart';
-import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -10,14 +10,21 @@ import 'server_widget.dart';
 class StatusCard extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
+  final VoidCallback buttonAction;
+  final ValueNotifier<Status> statusNotifier;
+  final ValueNotifier<Server?> lastServerNotifier;
 
-  const StatusCard(this.backgroundColor, this.textColor, {super.key});
+  const StatusCard(
+    this.backgroundColor,
+    this.textColor, {
+    super.key,
+    required this.statusNotifier,
+    required this.lastServerNotifier,
+    required this.buttonAction,
+  });
 
   @override
   Widget build(BuildContext context) {
-    var statusNotifier = VPN.get().status;
-    var lastServerNotifier = VPN.get().lastServer;
-
     return ListenableBuilder(
       listenable: Listenable.merge([statusNotifier, lastServerNotifier]),
       builder: (context, child) {
@@ -31,8 +38,6 @@ class StatusCard extends StatelessWidget {
           Status.disconnecting => tr('labelDisconnecting'),
           Status.disconnected => tr('labelConnect')
         };
-
-        var notLoadingColor = status == Status.connected ? CustomColors.brightGreen : CustomColors.red300;
 
         if (lastServer != null) {
           return Column(
@@ -62,7 +67,7 @@ class StatusCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Button(
-                onPressed: () => {},
+                onPressed: buttonAction,
                 color: (status == Status.connected || status == Status.disconnecting)
                     ? CustomButtonColor.red
                     : CustomButtonColor.green,
