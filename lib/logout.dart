@@ -41,17 +41,13 @@ class _LogoutState extends State<Logout> {
                 children: [
                   Button(
                     onPressed: () => Navigator.pop(context),
-                    theme: CustomButtonTheme.dark,
                     color: CustomButtonColor.transparent,
-                    size: CustomButtonSize.normal,
                     enabled: !_loading,
                     child: Text(tr('logoutLabelGoBack')),
                   ),
                   Button(
                     onPressed: _logoutAction,
-                    theme: CustomButtonTheme.dark,
                     color: CustomButtonColor.blue,
-                    size: CustomButtonSize.normal,
                     enabled: !_loading,
                     child: Text(tr('logoutLabelSignOut')),
                   ),

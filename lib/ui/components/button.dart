@@ -53,9 +53,9 @@ class Button extends StatelessWidget {
     super.key,
     required this.child,
     required this.onPressed,
-    required this.theme,
     required this.color,
-    required this.size,
+    this.theme = CustomButtonTheme.dark,
+    this.size = CustomButtonSize.normal,
     this.enabled = true,
   });
 
