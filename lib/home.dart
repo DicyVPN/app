@@ -1,5 +1,6 @@
 import 'package:dicyvpn/ui/components/button.dart';
 import 'package:dicyvpn/ui/components/server_selector.dart';
+import 'package:dicyvpn/ui/components/server_widget.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:dicyvpn/vpn/status.dart';
 import 'package:dicyvpn/vpn/vpn.dart';
@@ -10,6 +11,7 @@ class Home extends StatelessWidget {
   const Home({super.key});
 
   static const _backgroundColor = CustomColors.gray800;
+  static const _textColor = CustomColors.gray200;
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +23,12 @@ class Home extends StatelessWidget {
               Material(
                 color: _backgroundColor,
                 elevation: 4,
-                textStyle: TextStyle(color: CustomColors.gray200),
+                textStyle: TextStyle(color: _textColor),
                 child: SizedBox(
                   width: double.maxFinite,
                   child: Padding(
                     padding: EdgeInsets.all(16),
-                    child: StatusCard(_backgroundColor),
+                    child: StatusCard(_backgroundColor, _textColor),
                   ),
                 ),
               ),
@@ -34,7 +36,7 @@ class Home extends StatelessWidget {
               Material(
                 color: _backgroundColor,
                 elevation: 4,
-                textStyle: TextStyle(color: CustomColors.gray200),
+                textStyle: TextStyle(color: _textColor),
                 child: Padding(
                   padding: EdgeInsets.all(16),
                   child: ServerSelector(),
@@ -50,8 +52,9 @@ class Home extends StatelessWidget {
 
 class StatusCard extends StatelessWidget {
   final Color backgroundColor;
+  final Color textColor;
 
-  const StatusCard(this.backgroundColor, {super.key});
+  const StatusCard(this.backgroundColor, this.textColor, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,19 +83,35 @@ class StatusCard extends StatelessWidget {
               Row(
                 children: [
                   StatusCircle(status, backgroundColor, isVPNLoading),
+                  const SizedBox(width: 8),
+                  Text(
+                    tr(status == Status.connected ? 'connected' : 'notConnected'),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor),
+                  ),
                 ],
               ),
-              Text(
-                  'Server: ${lastServer.id}, ${lastServer.name}, ${lastServer.type}, ${lastServer.country}, ${lastServer.city}'),
+              const SizedBox(height: 16),
+              Container(height: 1, color: status == Status.connected ? CustomColors.brightGreen : CustomColors.red300),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Text(lastServer.city),
+                  const Spacer(),
+                  const SizedBox(width: 8),
+                  Text(lastServer.name, style: const TextStyle(fontFamily: 'monospace')),
+                  const SizedBox(width: 8),
+                  Flag(country: lastServer.country),
+                ],
+              ),
               const SizedBox(height: 16),
               Button(
-                  onPressed: () {
-                    // navigationKey.currentState!.pushNamed('/logout');
-                  },
-                  theme: CustomButtonTheme.dark,
-                  color: CustomButtonColor.green,
-                  size: CustomButtonSize.normal,
-                  child: const Text('Click me to set to NULL')),
+                onPressed: () => {},
+                color: (status == Status.connected || status == Status.disconnecting)
+                    ? CustomButtonColor.red
+                    : CustomButtonColor.green,
+                enabled: !isVPNLoading,
+                child: Text(connectButtonLabel),
+              ),
             ],
           );
         }
@@ -163,17 +182,18 @@ class _StatusCircleState extends State<StatusCircle> with SingleTickerProviderSt
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
-        if (widget.isVPNLoading) FadeTransition(
-          opacity: _fadeAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Container(
-              width: _size,
-              height: _size,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: notLoadingColor),
+        if (widget.isVPNLoading)
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Container(
+                width: _size,
+                height: _size,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: notLoadingColor),
+              ),
             ),
           ),
-        ),
         Container(
           width: _size,
           height: _size,
