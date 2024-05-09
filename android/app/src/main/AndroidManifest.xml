@@ -11,7 +11,7 @@
         android:required="false" />
 
     <application
-        android:name="${applicationName}"
+        android:name=".DicyVPN"
         android:banner="@mipmap/ic_banner"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"

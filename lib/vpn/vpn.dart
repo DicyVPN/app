@@ -4,11 +4,11 @@ import 'package:dicyvpn/ui/api/api.dart';
 import 'package:dicyvpn/ui/api/dto.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
 import 'package:dicyvpn/vpn/status.dart';
+import 'package:dicyvpn/vpn/wireguard/wireguard_flutter.dart';
+import 'package:dicyvpn/vpn/wireguard/wireguard_flutter_platform_interface.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:wireguard_flutter/wireguard_flutter.dart';
-import 'package:wireguard_flutter/wireguard_flutter_platform_interface.dart';
 
 class VPN {
   static VPN? _instance;
@@ -105,7 +105,6 @@ class VPN {
     var config = await _getWireGuardConfig(info, endpoint, privateKey!, packageInfo.packageName);
     log('WireGuard config: $config', name: _tag);
 
-    await _wireGuard.initialize(interfaceName: 'dicyvpn');
     try {
       await _wireGuard.startVpn(
         serverAddress: endpoint,

@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:dicyvpn/ui/api/dto.dart';
 import 'package:dicyvpn/ui/components/server_selector.dart';
 import 'package:dicyvpn/ui/components/status_card.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:dicyvpn/vpn/status.dart';
 import 'package:dicyvpn/vpn/vpn.dart';
+import 'package:dicyvpn/vpn/wireguard/wireguard.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -57,10 +60,15 @@ class Home extends StatelessWidget {
   }
 
   void _onStatusCardButtonClick() {
-    if (statusNotifier.value == Status.connected) {
-      VPN.get().stop(false, lastServerNotifier.value);
-    } else {
-      VPN.get().connect(lastServerNotifier.value!, lastServerNotifier.value);
-    }
+    WireGuard.get().requestPermission().then((_) {
+      log('PERMISSION IS GRANTED');
+    }).catchError((e) {
+      log('Got a permission rejected error', error: e);
+    });
+    // if (statusNotifier.value == Status.connected) {
+    //   VPN.get().stop(false, lastServerNotifier.value);
+    // } else {
+    //   VPN.get().connect(lastServerNotifier.value!, lastServerNotifier.value);
+    // }
   }
 }

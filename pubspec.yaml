@@ -43,8 +43,9 @@ dependencies:
   device_info_plus: ^10.1.0
   flutter_secure_storage: ^9.0.0
   json_annotation: ^4.8.1
-  wireguard_flutter: ^0.1.3
   country_picker: ^2.0.25
+  path_provider: ^2.1.3
+  process_run: ^0.14.2
 
 dev_dependencies:
   flutter_test:
