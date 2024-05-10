@@ -38,6 +38,7 @@
   "logoutTitle": "Sign out of DicyVPN",
   "cannotLoadServers": "Couldn't load DicyVPN servers",
   "cannotLoadServersTryAgain": "Try again",
+  "cannotConnectPermissionDenied": "Cannot connect to the VPN: permission denied",
   "secondaryServersAlertMessage": "Use of secondary servers allows basic web browsing, but are not suitable for online gaming, primary servers are recommended for optimal experience.",
   "secondaryServersAlertAgree": "Don't show again",
   "chooseAServerFromTheList": "Choose a server to connect to from the list",

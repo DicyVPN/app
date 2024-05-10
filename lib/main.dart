@@ -13,8 +13,6 @@ import 'package:dicyvpn/utils/navigation_key.dart';
 import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-
-// ignore: depend_on_referenced_packages -- will be removed after 2-3 versions
 import 'package:path_provider/path_provider.dart';
 
 void main() async {
@@ -24,9 +22,9 @@ void main() async {
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en', 'US'), Locale('it', 'IT')],
+      supportedLocales: const [Locale('en'), Locale('it')],
       path: 'assets/translations',
-      fallbackLocale: const Locale('en', 'US'),
+      fallbackLocale: const Locale('en'),
       useFallbackTranslations: true,
       child: const DicyVPN(),
     ),

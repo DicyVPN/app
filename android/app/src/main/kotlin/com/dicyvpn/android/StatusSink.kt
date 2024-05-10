@@ -7,7 +7,7 @@ import io.flutter.plugin.common.EventChannel.EventSink
  */
 class StatusSink(private val sink: EventSink) {
     fun success(event: Status) {
-        sink.success(event.name)
+        sink.success(event.value)
     }
 
     fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {

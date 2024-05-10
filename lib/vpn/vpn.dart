@@ -4,8 +4,7 @@ import 'package:dicyvpn/ui/api/api.dart';
 import 'package:dicyvpn/ui/api/dto.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
 import 'package:dicyvpn/vpn/status.dart';
-import 'package:dicyvpn/vpn/wireguard/wireguard_flutter.dart';
-import 'package:dicyvpn/vpn/wireguard/wireguard_flutter_platform_interface.dart';
+import 'package:dicyvpn/vpn/wireguard/wireguard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -15,9 +14,8 @@ class VPN {
 
   static Future<void> initialize() async {
     if (_instance == null) {
-      final wireGuard = WireGuardFlutter.instance;
       Server? lastServer = await _getLastServer();
-      _instance = VPN._internal(wireGuard, lastServer);
+      _instance = VPN._internal(lastServer);
     }
   }
 
@@ -28,22 +26,22 @@ class VPN {
     return _instance!;
   }
 
-  VPN._internal(this._wireGuard, Server? lastServer) {
-    _wireGuard.vpnStageSnapshot.listen(_handleVpnStageChange);
-    _wireGuard.stage().then(_handleVpnStageChange);
+  VPN._internal(Server? lastServer) {
+    _wireGuard.getStatusStream().listen(_handleStatusChange);
+    // _wireGuard.stage().then(_handleVpnStageChange); TODO: check if needed
     this.lastServer = ValueNotifier(lastServer);
     this.lastServer.addListener(_onLastServerChanged);
   }
 
   final ValueNotifier<Status> status = ValueNotifier(Status.disconnected);
   late final ValueNotifier<Server?> lastServer;
-  final WireGuardFlutterInterface _wireGuard;
+  final WireGuard _wireGuard = WireGuard.get();
   final String _tag = 'DicyVPN/VPN';
   final List<void Function()> _waitForStoppedCallbacks = List.empty(growable: true);
 
   Future<void> connect(Server server, Server? currentServer) async {
-    await stop(true, currentServer, newServer: server);
     status.value = Status.connecting;
+    await stop(true, currentServer, newServer: server);
     try {
       var api = await API.get();
       var info = await api.connect(server.id, server.type);
@@ -92,7 +90,7 @@ class VPN {
       }
     }
 
-    await _stopWireGuard();
+    await _wireGuard.stop();
   }
 
   Future<void> _startWireGuard(ConnectionInfo info) async {
@@ -106,20 +104,12 @@ class VPN {
     log('WireGuard config: $config', name: _tag);
 
     try {
-      await _wireGuard.startVpn(
-        serverAddress: endpoint,
-        wgQuickConfig: config,
-        providerBundleIdentifier: packageInfo.packageName,
-      );
+      await _wireGuard.start(config);
     } catch (e) {
       // user might have not given permission for starting a VPN yet
       log('Error while starting VPN', name: _tag, error: e);
       status.value = Status.disconnected;
     }
-  }
-
-  Future<void> _stopWireGuard() {
-    return _wireGuard.stopVpn().then((value) => status.value = Status.disconnected);
   }
 
   _getWireGuardConfig(ConnectionInfo info, String endpoint, String privateKey, String packageName) async {
@@ -140,35 +130,11 @@ class VPN {
         .replaceAll('\n           ', '\n');
   }
 
-  void _handleVpnStageChange(VpnStage stage) {
-    log('VPN Stage updated: $stage', name: _tag);
+  void _handleStatusChange(Status status) {
+    log('VPN status updated: $status', name: _tag);
+    this.status.value = status;
 
-    switch (stage) {
-      case VpnStage.connected:
-        status.value = Status.connected;
-      case VpnStage.connecting:
-        status.value = Status.connecting;
-      case VpnStage.disconnecting:
-        status.value = Status.disconnecting;
-      case VpnStage.disconnected:
-        status.value = Status.disconnected;
-      case VpnStage.waitingConnection:
-        status.value = Status.connecting;
-      case VpnStage.authenticating:
-        status.value = Status.connecting;
-      case VpnStage.reconnect:
-        status.value = Status.connecting;
-      case VpnStage.noConnection: // TODO might be useful alongside other cases
-        status.value = Status.disconnected;
-      case VpnStage.preparing:
-        status.value = Status.connecting;
-      case VpnStage.denied:
-        status.value = Status.disconnected;
-      case VpnStage.exiting:
-        status.value = Status.disconnected;
-    }
-
-    if (status.value == Status.disconnected) {
+    if (status == Status.disconnected) {
       _waitForStoppedCallbacks.removeWhere((callback) {
         callback();
         return true;
@@ -177,8 +143,8 @@ class VPN {
   }
 
   void _waitForStopped(Future<void> Function() callback) {
-    _wireGuard.stage().then((stage) {
-      if (stage == VpnStage.noConnection || stage == VpnStage.disconnected) {
+    _wireGuard.getStatus().then((status) {
+      if (status == Status.disconnected) {
         callback();
         return;
       }

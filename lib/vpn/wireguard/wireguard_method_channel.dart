@@ -1,7 +1,7 @@
+import 'package:dicyvpn/vpn/status.dart';
 import 'package:flutter/services.dart';
 
 import 'wireguard.dart';
-
 
 class WireGuardMethodChannel implements WireGuard {
   static const _methodChannel = MethodChannel('wireguard_native.dicyvpn.com/method');
@@ -10,5 +10,25 @@ class WireGuardMethodChannel implements WireGuard {
   @override
   Future<void> requestPermission() {
     return _methodChannel.invokeMethod('requestPermission');
+  }
+
+  @override
+  Future<void> start(String config) {
+    return _methodChannel.invokeMethod('start', {'config': config});
+  }
+
+  @override
+  Future<void> stop() {
+    return _methodChannel.invokeMethod('stop');
+  }
+
+  @override
+  Future<Status> getStatus() {
+    return _methodChannel.invokeMethod<String>('getStatus').then((value) => Status.values.byName(value!));
+  }
+
+  @override
+  Stream<Status> getStatusStream() {
+    return _eventChannel.receiveBroadcastStream().map((event) => Status.values.byName(event));
   }
 }

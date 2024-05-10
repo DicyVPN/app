@@ -12,6 +12,7 @@ import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 class MainActivity : FlutterActivity() {
@@ -26,23 +27,38 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, wgMethodChannel).setMethodCallHandler { call, result ->
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            wgMethodChannel
+        ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "requestPermission" -> requestPermission(result)
+                "start" -> {
+                    val config = call.argument<String>("config");
+                    if (config != null) {
+                        start(config, result)
+                    } else {
+                        result.error("missing_argument", "Missing argument 'config'", null)
+                    }
+                }
+
+                "stop" -> stop(result)
+                "getStatus" -> result.success(DicyVPN.getTunnel().getStatus().value)
                 else -> result.notImplemented()
             }
         }
+
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, wgEventChannel).setStreamHandler(
             object : EventChannel.StreamHandler {
                 override fun onListen(arguments: Any?, events: EventSink) {
                     vpnStatusSink = StatusSink(events)
-                    DicyVPN.getTunnel().setStatusSink(vpnStatusSink)
-                    // TODO: update vpnStatusStink with last status
+                    DicyVPN.getTunnel().setStatusSink(vpnStatusSink, coroutineScope)
                 }
 
                 override fun onCancel(arguments: Any?) {
                     vpnStatusSink = null
-                    DicyVPN.getTunnel().setStatusSink(null)
+                    DicyVPN.getTunnel().setStatusSink(null, coroutineScope)
                 }
             }
         )
@@ -71,6 +87,18 @@ class MainActivity : FlutterActivity() {
             Log.i(tag, "VPN permission denied")
         }
         requestPermissionResult = null // cleanup
+    }
+
+    private fun start(config: String, result: MethodChannel.Result) {
+        coroutineScope.launch(Dispatchers.IO) {
+            DicyVPN.setTunnelUp(config)
+            result.success(null)
+        }
+    }
+
+    private fun stop(result: MethodChannel.Result) {
+        DicyVPN.setTunnelDown()
+        result.success(null)
     }
 
     /*

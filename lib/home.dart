@@ -7,6 +7,7 @@ import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:dicyvpn/vpn/status.dart';
 import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:dicyvpn/vpn/wireguard/wireguard.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -37,7 +38,7 @@ class Home extends StatelessWidget {
                       _textColor,
                       statusNotifier: statusNotifier,
                       lastServerNotifier: lastServerNotifier,
-                      buttonAction: _onStatusCardButtonClick,
+                      buttonAction: () => _onStatusCardButtonClick(context),
                     ),
                   ),
                 ),
@@ -59,16 +60,19 @@ class Home extends StatelessWidget {
     );
   }
 
-  void _onStatusCardButtonClick() {
+  void _onStatusCardButtonClick(BuildContext context) {
     WireGuard.get().requestPermission().then((_) {
-      log('PERMISSION IS GRANTED');
+      if (statusNotifier.value == Status.connected) {
+        VPN.get().stop(false, lastServerNotifier.value);
+      } else {
+        // TODO: can return NoSubscriptionException if subscription is not active
+        VPN.get().connect(lastServerNotifier.value!, lastServerNotifier.value);
+      }
     }).catchError((e) {
       log('Got a permission rejected error', error: e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(tr('cannotConnectPermissionDenied')),
+      ));
     });
-    // if (statusNotifier.value == Status.connected) {
-    //   VPN.get().stop(false, lastServerNotifier.value);
-    // } else {
-    //   VPN.get().connect(lastServerNotifier.value!, lastServerNotifier.value);
-    // }
   }
 }

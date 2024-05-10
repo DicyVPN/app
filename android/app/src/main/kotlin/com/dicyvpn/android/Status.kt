@@ -1,6 +1,6 @@
 package com.dicyvpn.android
 
-enum class Status(value: String) {
+enum class Status(val value: String) {
     CONNECTING("connecting"),
     CONNECTED("connected"),
     DISCONNECTED("disconnected"),

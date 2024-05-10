@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dicyvpn/vpn/status.dart';
 import 'package:flutter/foundation.dart';
 
 import 'wireguard_method_channel.dart';
@@ -21,4 +22,12 @@ abstract interface class WireGuard {
   }
 
   Future<void> requestPermission();
+
+  Future<void> start(String config);
+
+  Future<void> stop();
+
+  Future<Status> getStatus();
+
+  Stream<Status> getStatusStream();
 }
