@@ -17,6 +17,8 @@ import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  EasyLocalization.logger.enableLevels = [...EasyLocalization.logger.enableLevels]
+    ..removeWhere((level) => level.name == 'debug');
   await EasyLocalization.ensureInitialized();
   await VPN.initialize();
 
@@ -67,7 +69,8 @@ class Startup extends StatelessWidget {
   Widget build(BuildContext context) {
     _loadAuthInfoAndNavigate();
 
-    return Container( // empty widget
+    return Container(
+      // empty widget
       color: CustomColors.gray800,
     );
   }
