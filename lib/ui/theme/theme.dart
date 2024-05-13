@@ -18,3 +18,7 @@ ColorScheme customColorScheme = ColorScheme.fromSeed(
   onSurfaceVariant: CustomColors.gray.shade200, // Also text fields labels
   error: CustomColors.red.shade300,
 );
+
+DrawerThemeData customDrawerTheme = const DrawerThemeData(
+  backgroundColor: CustomColors.gray700
+);

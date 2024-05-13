@@ -25,7 +25,42 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var navigationItems = [
+      NavigationItem(
+        icon: const Icon(Icons.home),
+        label: Text(tr('navigationHome')),
+        onClick: () {},
+      ),
+      NavigationItem(
+        icon: const Icon(Icons.logout),
+        label: Text(tr('navigationLogout')),
+        onClick: () => navigationKey.currentState?.pushNamed("logout"),
+      ),
+    ];
+
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: CustomColors.gray600,
+        centerTitle: true,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Container(
+            constraints: const BoxConstraints(maxHeight: 40),
+            child: Image.asset('assets/images/full_logo.png', semanticLabel: tr('dicyvpnLogo')),
+          ),
+        ),
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              tooltip: tr('menuLabel'),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           controller: _controller,
@@ -69,6 +104,19 @@ class Home extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      drawer: NavigationDrawer(
+        onDestinationSelected: (index) {
+          navigationItems[index].onClick();
+        },
+        children: [
+          for (var item in navigationItems) ...[
+            NavigationDrawerDestination(
+              icon: item.icon,
+              label: item.label,
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -137,4 +185,12 @@ class Home extends StatelessWidget {
       },
     );
   }
+}
+
+class NavigationItem {
+  final Icon icon;
+  final Text label;
+  final VoidCallback onClick;
+
+  NavigationItem({required this.icon, required this.label, required this.onClick});
 }

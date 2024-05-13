@@ -42,6 +42,7 @@ class DicyVPN extends StatelessWidget {
       title: 'DicyVPN',
       theme: ThemeData(
         colorScheme: customColorScheme,
+        drawerTheme: customDrawerTheme,
         useMaterial3: true,
       ),
       localizationsDelegates: [
