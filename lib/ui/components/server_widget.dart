@@ -6,30 +6,38 @@ import 'package:flutter_svg/svg.dart';
 class ServerWidget extends StatelessWidget {
   final Server server;
 
-  const ServerWidget(this.server, {super.key});
+  final void Function(Server) onClick;
+
+  const ServerWidget(this.server, this.onClick, {super.key});
 
   @override
   Widget build(BuildContext context) {
+    var border = BorderRadius.circular(4);
+
     return Material(
       color: CustomColors.gray900,
-      borderRadius: BorderRadius.circular(4),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Text(server.city),
-            const Spacer(),
-            const SizedBox(width: 8),
-            Container(
-              height: 6,
-              width: 6,
-              decoration: BoxDecoration(color: _getLoadColor(), borderRadius: BorderRadius.circular(1)),
-            ),
-            const SizedBox(width: 8),
-            Text(server.name, style: const TextStyle(fontFamily: 'monospace', color: CustomColors.gray300)),
-            const SizedBox(width: 8),
-            Flag(country: server.country),
-          ],
+      borderRadius: border,
+      child: InkWell(
+        borderRadius: border,
+        onTap: () => onClick(server),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Text(server.city),
+              const Spacer(),
+              const SizedBox(width: 8),
+              Container(
+                height: 6,
+                width: 6,
+                decoration: BoxDecoration(color: _getLoadColor(), borderRadius: BorderRadius.circular(1)),
+              ),
+              const SizedBox(width: 8),
+              Text(server.name, style: const TextStyle(fontFamily: 'monospace', color: CustomColors.gray300)),
+              const SizedBox(width: 8),
+              Flag(country: server.country),
+            ],
+          ),
         ),
       ),
     );

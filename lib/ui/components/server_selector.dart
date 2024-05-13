@@ -11,7 +11,9 @@ import 'package:flutter/material.dart';
 import 'server_widget.dart';
 
 class ServerSelector extends StatefulWidget {
-  const ServerSelector({super.key});
+  const ServerSelector(this.onServerClick, {super.key});
+
+  final void Function(Server server) onServerClick;
 
   @override
   State<StatefulWidget> createState() {
@@ -60,7 +62,7 @@ class _ServerSelectorState extends State<ServerSelector> {
                         children: [
                           for (var server in primaryServers[primaryServersKeys[index]]!) ...[
                             const Padding(padding: EdgeInsets.only(top: 2)),
-                            ServerWidget(server),
+                            ServerWidget(server, widget.onServerClick),
                           ]
                         ],
                       ),
@@ -112,7 +114,7 @@ class _ServerSelectorState extends State<ServerSelector> {
                       children: [
                         for (var server in entry.value) ...[
                           const Padding(padding: EdgeInsets.only(top: 2)),
-                          ServerWidget(server),
+                          ServerWidget(server, widget.onServerClick),
                         ]
                       ],
                     ),

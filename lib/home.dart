@@ -5,6 +5,8 @@ import 'package:dicyvpn/ui/components/server_selector.dart';
 import 'package:dicyvpn/ui/components/status_card.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:dicyvpn/utils/dialogs.dart';
+import 'package:dicyvpn/utils/encrypted_storage.dart';
+import 'package:dicyvpn/utils/navigation_key.dart';
 import 'package:dicyvpn/vpn/status.dart';
 import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:dicyvpn/vpn/wireguard/wireguard.dart';
@@ -39,19 +41,26 @@ class Home extends StatelessWidget {
                       _textColor,
                       statusNotifier: statusNotifier,
                       lastServerNotifier: lastServerNotifier,
-                      buttonAction: () => _onStatusCardButtonClick(context),
+                      buttonAction: _onStatusCardButtonClick,
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
-              const Material(
+              Material(
                 color: _backgroundColor,
                 elevation: 4,
-                textStyle: TextStyle(color: _textColor),
+                textStyle: const TextStyle(color: _textColor),
                 child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: ServerSelector(),
+                  padding: const EdgeInsets.all(16),
+                  child: ServerSelector((server) async {
+                    // TODO: scroll to top when clicking
+                    if (server.type == ServerType.secondary && !await _hasAgreedToUseSecondaryServers()) {
+                      _showSecondaryServersAgreement();
+                      return;
+                    }
+                    _onServerClick(server);
+                  }),
                 ),
               ),
             ],
@@ -61,22 +70,68 @@ class Home extends StatelessWidget {
     );
   }
 
-  void _onStatusCardButtonClick(BuildContext context) {
+  void _onStatusCardButtonClick() {
     if (statusNotifier.value == Status.connected) {
       VPN.get().stop(false, lastServerNotifier.value);
     } else {
-      WireGuard.get().requestPermission().then((_) async {
-        try {
-          await VPN.get().connect(lastServerNotifier.value!, lastServerNotifier.value);
-        } on NoSubscriptionException {
-          openDialog(tr('noActiveSubscription'), link: tr('urlPrices'), linkText: tr('takeALookAtOurPlans'));
-        }
-      }).catchError((e) {
-        log('Got a permission rejected error', error: e);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(tr('cannotConnectPermissionDenied')),
-        ));
-      });
+      _onServerClick(lastServerNotifier.value!);
     }
+  }
+
+  void _onServerClick(Server server) {
+    WireGuard.get().requestPermission().then((_) async {
+      try {
+        await VPN.get().connect(server, lastServerNotifier.value);
+      } on NoSubscriptionException {
+        openDialog(tr('noActiveSubscription'), link: tr('urlPrices'), linkText: tr('takeALookAtOurPlans'));
+      } finally {
+        lastServerNotifier.value = server;
+      }
+    }).catchError((e) {
+      log('Got a permission rejected error', error: e);
+      ScaffoldMessenger.of(navigationKey.currentContext!).showSnackBar(SnackBar(
+        content: Text(tr('cannotConnectPermissionDenied')),
+      ));
+    });
+  }
+
+  Future<bool> _hasAgreedToUseSecondaryServers() async {
+    var value = await getStorage().read(key: 'agreedToUseSecondaryServers');
+    return value == true.toString();
+  }
+
+  void _showSecondaryServersAgreement() {
+    showDialog(
+      context: navigationKey.currentContext!,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(tr('secondaryServersAlertMessage')),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(tr('secondaryServersAlertGoBack')),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: Text(tr('secondaryServersAlertAgree')),
+              onPressed: () async {
+                await getStorage().write(key: 'agreedToUseSecondaryServers', value: true.toString());
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
