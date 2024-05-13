@@ -41,8 +41,13 @@ class _ServerSelectorState extends State<ServerSelector> {
         if (snapshot.hasData) {
           var primaryServers = snapshot.data!.primary;
           var secondaryServers = snapshot.data!.secondary;
-          var primaryServersKeys = primaryServers.keys.toList();
-          var secondaryServersKeys = secondaryServers.keys.toList();
+          var primaryServersKeys = primaryServers.keys.toList()..sort();
+          Map<String, String> secondaryServersCountryToKey = {};
+          for (var key in secondaryServers.keys) {
+            var country = CountryLocalizations.of(context)?.countryName(countryCode: key) ?? key;
+            secondaryServersCountryToKey[country] = key;
+          }
+          var secondaryServersCountriesSorted = secondaryServersCountryToKey.keys.toList()..sort();
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +81,7 @@ class _ServerSelectorState extends State<ServerSelector> {
               ExpansionPanelList(
                 expansionCallback: (int index, bool isExpanded) {
                   setState(() {
-                    _expandedCountry = isExpanded ? secondaryServersKeys[index] : null;
+                    _expandedCountry = isExpanded ? secondaryServersCountriesSorted[index] : null;
                   });
                 },
                 elevation: 0,
@@ -84,8 +89,9 @@ class _ServerSelectorState extends State<ServerSelector> {
                 dividerColor: CustomColors.gray600,
                 expandedHeaderPadding: EdgeInsets.zero,
                 materialGapSize: 1,
-                children: secondaryServers.entries.map<ExpansionPanel>((MapEntry<String, List<Server>> entry) {
-                  var country = entry.key;
+                children: secondaryServersCountriesSorted.map<ExpansionPanel>((String country) {
+                  var key = secondaryServersCountryToKey[country]!;
+                  var servers = secondaryServers[key]!;
                   return ExpansionPanel(
                     backgroundColor: Colors.transparent,
                     headerBuilder: (BuildContext context, bool isExpanded) {
@@ -102,9 +108,9 @@ class _ServerSelectorState extends State<ServerSelector> {
                         child: ListTile(
                           title: Row(
                             children: [
-                              Flag(country: country),
+                              Flag(country: key),
                               const SizedBox(width: 8),
-                              Text(CountryLocalizations.of(context)?.countryName(countryCode: country) ?? country),
+                              Text(country),
                             ],
                           ),
                         ),
@@ -112,7 +118,7 @@ class _ServerSelectorState extends State<ServerSelector> {
                     },
                     body: Column(
                       children: [
-                        for (var server in entry.value) ...[
+                        for (var server in servers) ...[
                           const Padding(padding: EdgeInsets.only(top: 2)),
                           ServerWidget(server, widget.onServerClick),
                         ]
