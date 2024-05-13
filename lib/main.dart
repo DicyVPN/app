@@ -56,7 +56,7 @@ class DicyVPN extends StatelessWidget {
         '/startup': (context) => const Startup(),
         '/login': (context) => const Login(),
         '/logout': (context) => const Logout(),
-        '/home': (context) => const Home(),
+        '/home': (context) => Home(),
       },
     );
   }

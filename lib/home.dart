@@ -14,18 +14,21 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  Home({super.key});
 
   static const _backgroundColor = CustomColors.gray800;
   static const _textColor = CustomColors.gray200;
   static ValueNotifier<Status> statusNotifier = VPN.get().status;
   static ValueNotifier<Server?> lastServerNotifier = VPN.get().lastServer;
 
+  final ScrollController _controller = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
+          controller: _controller,
           child: Column(
             children: <Widget>[
               Material(
@@ -54,11 +57,11 @@ class Home extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: ServerSelector((server) async {
-                    // TODO: scroll to top when clicking
                     if (server.type == ServerType.secondary && !await _hasAgreedToUseSecondaryServers()) {
                       _showSecondaryServersAgreement();
                       return;
                     }
+                    _controller.animateTo(0, curve: Curves.easeOut, duration: const Duration(milliseconds: 200));
                     _onServerClick(server);
                   }),
                 ),
