@@ -4,6 +4,7 @@ import 'package:dicyvpn/ui/api/dto.dart';
 import 'package:dicyvpn/ui/components/server_selector.dart';
 import 'package:dicyvpn/ui/components/status_card.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
+import 'package:dicyvpn/utils/dialogs.dart';
 import 'package:dicyvpn/vpn/status.dart';
 import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:dicyvpn/vpn/wireguard/wireguard.dart';
@@ -61,18 +62,21 @@ class Home extends StatelessWidget {
   }
 
   void _onStatusCardButtonClick(BuildContext context) {
-    WireGuard.get().requestPermission().then((_) {
-      if (statusNotifier.value == Status.connected) {
-        VPN.get().stop(false, lastServerNotifier.value);
-      } else {
-        // TODO: can return NoSubscriptionException if subscription is not active
-        VPN.get().connect(lastServerNotifier.value!, lastServerNotifier.value);
-      }
-    }).catchError((e) {
-      log('Got a permission rejected error', error: e);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(tr('cannotConnectPermissionDenied')),
-      ));
-    });
+    if (statusNotifier.value == Status.connected) {
+      VPN.get().stop(false, lastServerNotifier.value);
+    } else {
+      WireGuard.get().requestPermission().then((_) async {
+        try {
+          await VPN.get().connect(lastServerNotifier.value!, lastServerNotifier.value);
+        } on NoSubscriptionException {
+          openDialog(tr('noActiveSubscription'), link: tr('urlPrices'), linkText: tr('takeALookAtOurPlans'));
+        }
+      }).catchError((e) {
+        log('Got a permission rejected error', error: e);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(tr('cannotConnectPermissionDenied')),
+        ));
+      });
+    }
   }
 }
