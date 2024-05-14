@@ -34,7 +34,7 @@ class Home extends StatelessWidget {
       NavigationItem(
         icon: const Icon(Icons.logout),
         label: Text(tr('navigationLogout')),
-        onClick: () => navigationKey.currentState?.pushNamed("logout"),
+        onClick: () => navigationKey.currentState?.pushNamed('/logout'),
       ),
     ];
 
