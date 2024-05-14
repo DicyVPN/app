@@ -1,4 +1,3 @@
-
 import 'package:dicyvpn/ui/api/api.dart';
 import 'package:dicyvpn/ui/components/button.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
@@ -127,7 +126,7 @@ class _LoginState extends State<Login> {
                                   size: CustomButtonSize.big,
                                   enabled: !_loading,
                                   onPressed: _loginAction,
-                                  child: Text(_loading ? "Loading..." : "Login")), // TODO: translate
+                                  child: Text(_loading ? tr('loginButtonLoading') : tr('loginButtonLogin'))),
                               const SizedBox(height: 32),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -211,10 +210,10 @@ class _LoginState extends State<Login> {
             openDialog(reply['message']);
         }
       } else {
-        openDialog('Unknown network error, please try again\n\n${e.message}'); // TODO: translate
+        openDialog('${tr('unknownNetworkErrorTryAgain')}\n\n${e.message}');
       }
     } catch (e) {
-      openDialog('Unknown error, please try again\n\n$e');
+      openDialog('${tr('unknownError')}\n\n$e');
     } finally {
       setState(() {
         _loading = false;

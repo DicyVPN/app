@@ -85,8 +85,8 @@ class _LogoutState extends State<Logout> {
       } else {
         debugPrintStack();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Unknown network error, please try again'), // TODO: translate
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(tr('unknownNetworkErrorTryAgain')),
           ));
         }
       }

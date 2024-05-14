@@ -7,6 +7,8 @@
   "password": "Password",
   "login": "Login",
   "loginLoggedOut": "Logged out",
+  "loginButtonLogin": "Login",
+  "loginButtonLoading": "Loading...",
   "createAnAccount": "Create an account",
   "recoverYourPassword": "Recover your password",
   "hidePassword": "Hide password",
@@ -45,5 +47,7 @@
   "chooseAServerFromTheList": "Choose a server to connect to from the list",
   "urlPrices": "https://dicyvpn.com/prices",
   "urlAccount": "https://dicyvpn.com/account",
-  "sessionExpiredLoginAgain": "Your session has expired, please login again"
+  "sessionExpiredLoginAgain": "Your session has expired, please login again",
+  "unknownNetworkErrorTryAgain": "Unknown network error, please try again",
+  "unknownErrorTryAgain": "Unknown error, please try again"
 }
