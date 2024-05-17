@@ -192,7 +192,7 @@ Future<String> _getUserAgent() async {
         ' ${androidInfo.manufacturer}; ${androidInfo.model})';
   } else if (Platform.isIOS) {
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    platformInfo = '(iOS ${iosInfo.systemVersion}';
+    platformInfo = '(iOS ${iosInfo.systemVersion})';
   } else if (Platform.isLinux) {
     LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
     platformInfo = '(Linux ${linuxInfo.name} ${linuxInfo.version})';
@@ -205,5 +205,5 @@ Future<String> _getUserAgent() async {
   }
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  return 'DicyVPN/${packageInfo.version} ($platformInfo)';
+  return 'DicyVPN/${packageInfo.version} $platformInfo';
 }
