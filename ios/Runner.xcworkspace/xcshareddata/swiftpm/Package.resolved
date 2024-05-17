@@ -1,0 +1,14 @@
+{
+  "originHash" : "1b15281535261c8f9ddc0c10a5894fc140f07929480d57c918a50bbd15be6645",
+  "pins" : [
+    {
+      "identity" : "wireguard-apple",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/DicyVPN/wireguard-apple",
+      "state" : {
+        "revision" : "73d9152fa0cb661db0348a1ac11dbbf998422a50"
+      }
+    }
+  ],
+  "version" : 3
+}
