@@ -31,6 +31,7 @@ import Flutter
                     //self.stop(result)
                     break
                 case "getStatus":
+                    result("disconnected")
                     //result(DicyVPN.getTunnel().getStatus().value)
                     break
                 default:
@@ -38,7 +39,22 @@ import Flutter
                 }
             })
         
+        FlutterEventChannel(name: wgEventChannel, binaryMessenger: controller.binaryMessenger)
+            .setStreamHandler(VPNStatusHandler())
+        
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+    
+    
+    
+    class VPNStatusHandler: NSObject, FlutterStreamHandler {
+        func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+            return nil
+        }
+        
+        func onCancel(withArguments arguments: Any?) -> FlutterError? {
+            return nil
+        }
     }
 }
