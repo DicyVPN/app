@@ -19,6 +19,8 @@
 		E56F1BCE2BF766AD0003D4A3 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = E56F1BCD2BF766AD0003D4A3 /* WireGuardKit */; };
 		E56F1BD22BF7687F0003D4A3 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E56F1BD12BF7687F0003D4A3 /* PacketTunnelProvider.swift */; };
 		E56F1BD42BF769990003D4A3 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = E56F1BD32BF769990003D4A3 /* WireGuardKit */; };
+		E57E219F2BF79EA50067E5E7 /* Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57E219E2BF79EA50067E5E7 /* Status.swift */; };
+		E57E21A12BF79F270067E5E7 /* StatusSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57E21A02BF79F270067E5E7 /* StatusSink.swift */; };
 		E8065298F7F382DF9A1D9A50 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C270FB3FFFBEB623B972C3 /* Pods_RunnerTests.framework */; };
 		EF01BE0D50500CF656206DC6 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F4121F75CAD8DED05593D34 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
@@ -101,6 +103,8 @@
 		E56F1BBC2BF7629F0003D4A3 /* WGExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WGExtension.entitlements; sourceTree = "<group>"; };
 		E56F1BCB2BF766270003D4A3 /* Runner.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		E56F1BD12BF7687F0003D4A3 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
+		E57E219E2BF79EA50067E5E7 /* Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Status.swift; sourceTree = "<group>"; };
+		E57E21A02BF79F270067E5E7 /* StatusSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusSink.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +203,8 @@
 				E56F1BCB2BF766270003D4A3 /* Runner.entitlements */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
+				E57E219E2BF79EA50067E5E7 /* Status.swift */,
+				E57E21A02BF79F270067E5E7 /* StatusSink.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
 			path = Runner;
@@ -499,8 +505,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E57E21A12BF79F270067E5E7 /* StatusSink.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				E57E219F2BF79EA50067E5E7 /* Status.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

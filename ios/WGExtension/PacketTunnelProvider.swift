@@ -314,7 +314,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         log("Starting tunnel")
         guard let protocolConfiguration = self.protocolConfiguration as? NETunnelProviderProtocol,
               let providerConfiguration = protocolConfiguration.providerConfiguration,
-              let wgQuickConfig = providerConfiguration["wgQuickConfig"] as? String else {
+              let wgQuickConfig = providerConfiguration["config"] as? String else {
             log("Invalid provider configuration")
             completionHandler(PacketTunnelProviderError.invalidProtocolConfiguration)
             return
