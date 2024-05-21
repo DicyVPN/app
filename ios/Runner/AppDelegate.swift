@@ -117,7 +117,8 @@ import NetworkExtension
                 
                 let protocolConfiguration = NETunnelProviderProtocol()
                 
-                // TODO: might not be needed // protocolConfiguration.providerBundleIdentifier = ""
+                protocolConfiguration.providerBundleIdentifier = Bundle.main.bundleIdentifier
+                NSLog("Bundle ID: \(Bundle.main.bundleIdentifier ?? "nil")")
                 protocolConfiguration.providerConfiguration = [
                     "config": config
                 ]
