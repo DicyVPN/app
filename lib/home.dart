@@ -135,6 +135,11 @@ class Home extends StatelessWidget {
         await VPN.get().connect(server, lastServerNotifier.value);
       } on NoSubscriptionException {
         openDialog(tr('noActiveSubscription'), link: tr('urlPrices'), linkText: tr('takeALookAtOurPlans'));
+      } catch (e) {
+        log('Unhandled error', error: e);
+        ScaffoldMessenger.of(navigationKey.currentContext!).showSnackBar(SnackBar(
+          content: Text(e.toString()),
+        ));
       } finally {
         lastServerNotifier.value = server;
       }
