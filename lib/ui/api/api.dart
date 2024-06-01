@@ -84,25 +84,15 @@ class API {
   }
 
   static Future<void> setAuthInfo(Headers headers) async {
-    _token = headers.value('X-Auth-Token');
     var refreshToken = headers.value('X-Auth-Refresh-Token');
     var privateKey = headers.value('X-Auth-Private-Key');
-    var payload = base64.normalize(_token!.split('.')[1]); // pad the base64 string with '='
-
-    var object = json.decode(utf8.decode(base64.decode(payload)));
-    var refreshTokenId = object['refreshTokenId'];
-    var accountId = object['_id'];
+    await _setNewToken(headers);
 
     var storage = getStorage();
     await Future.wait([
-      storage.write(key: 'auth.token', value: _token),
       storage.write(key: 'auth.refreshToken', value: refreshToken),
-      storage.write(key: 'auth.refreshTokenId', value: refreshTokenId),
-      storage.write(key: 'auth.accountId', value: accountId),
       storage.write(key: 'auth.privateKey', value: privateKey),
     ]);
-
-    log('Token has been set, accountId: $accountId', name: _tag);
   }
 
   static Future<void> removeAuthInfo({String? reason}) async {
@@ -113,14 +103,29 @@ class API {
       storage.delete(key: 'auth.refreshTokenId'),
       storage.delete(key: 'auth.accountId'),
       storage.delete(key: 'auth.privateKey'),
+      storage.delete(key: 'auth.plan'),
     ]);
 
     navigationKey.currentState?.pushNamedAndRemoveUntil('/login', (route) => false, arguments: reason);
   }
 
-  static Future<void> _setNewToken(Headers headers) {
+  static Future<void> _setNewToken(Headers headers) async {
     _token = headers.value('X-Auth-Token');
-    return getStorage().write(key: 'auth.token', value: _token);
+    var payload = base64.normalize(_token!.split('.')[1]); // pad the base64 string with '='
+
+    var object = json.decode(utf8.decode(base64.decode(payload)));
+    var refreshTokenId = object['refreshTokenId'];
+    var accountId = object['_id'];
+    var plan = object['plan'];
+
+    var storage = getStorage();
+    await Future.wait([
+      storage.write(key: 'auth.token', value: _token),
+      storage.write(key: 'auth.refreshTokenId', value: refreshTokenId),
+      storage.write(key: 'auth.accountId', value: accountId),
+      storage.write(key: 'auth.plan', value: plan),
+    ]);
+    log('Token has been set, accountId: $accountId', name: _tag);
   }
 
   static String? _getToken() {
@@ -155,7 +160,7 @@ class API {
                 return api.refreshToken(refreshToken, refreshTokenId, accountId);
               });
 
-              _setNewToken(refreshResponse.headers);
+              await _setNewToken(refreshResponse.headers);
             } on DioException {
               log('Failed to refresh token, logging out', name: _tag);
               await removeAuthInfo(reason: tr('sessionExpiredLoginAgain'));
