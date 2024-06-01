@@ -142,7 +142,6 @@ class _ServerSelectorState extends State<ServerSelector> {
                 Button(
                   onPressed: () {
                     setState(() {
-                      _refreshKey = UniqueKey();
                       _fetchServersFuture = _fetchServers();
                     });
                   },
@@ -171,6 +170,7 @@ class _ServerSelectorState extends State<ServerSelector> {
   }
 
   Future<ServerList> _fetchServers() {
+    _refreshKey = UniqueKey();
     return API.get().then((api) => api.getServersList());
   }
 }
