@@ -16,6 +16,7 @@ class Server {
   final String country;
   final String city;
   final double load;
+  final bool free;
 
   Server({
     required this.id,
@@ -24,6 +25,7 @@ class Server {
     required this.country,
     required this.city,
     required this.load,
+    required this.free,
   });
 
   factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);

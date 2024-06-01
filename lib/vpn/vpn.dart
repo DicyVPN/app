@@ -178,5 +178,5 @@ Future<Server?> _getLastServer() async {
   var type = ServerType.values.byName((await storage.read(key: 'lastServer.type'))!);
   var country = await storage.read(key: 'lastServer.country');
   var city = await storage.read(key: 'lastServer.city');
-  return Server(id: id, name: name!, type: type, country: country!, city: city!, load: 0.0);
+  return Server(id: id, name: name!, type: type, country: country!, city: city!, load: 0.0, free: false);
 }

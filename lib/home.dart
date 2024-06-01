@@ -91,7 +91,7 @@ class Home extends StatelessWidget {
                 textStyle: const TextStyle(color: _textColor),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: ServerSelector((server) async {
+                  child: ServerSelector(_textColor, (server) async {
                     if (server.type == ServerType.secondary && !await _hasAgreedToUseSecondaryServers()) {
                       _showSecondaryServersAgreement();
                       return;

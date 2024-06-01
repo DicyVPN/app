@@ -13,6 +13,7 @@ Server _$ServerFromJson(Map<String, dynamic> json) => Server(
       country: json['country'] as String,
       city: json['city'] as String,
       load: (json['load'] as num).toDouble(),
+      free: json['free'] as bool,
     );
 
 Map<String, dynamic> _$ServerToJson(Server instance) => <String, dynamic>{
@@ -22,6 +23,7 @@ Map<String, dynamic> _$ServerToJson(Server instance) => <String, dynamic>{
       'country': instance.country,
       'city': instance.city,
       'load': instance.load,
+      'free': instance.free,
     };
 
 const _$ServerTypeEnumMap = {
