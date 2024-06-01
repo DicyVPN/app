@@ -28,7 +28,6 @@ class VPN {
 
   VPN._internal(Server? lastServer) {
     _wireGuard.getStatusStream().listen(_handleStatusChange);
-    // _wireGuard.stage().then(_handleVpnStageChange); TODO: check if needed
     this.lastServer = ValueNotifier(lastServer);
     this.lastServer.addListener(_onLastServerChanged);
   }
