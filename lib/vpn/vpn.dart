@@ -103,7 +103,7 @@ class VPN {
     log('WireGuard config: $config', name: _tag);
 
     try {
-      await _wireGuard.start(config);
+      await _wireGuard.start(config, info.serverIp);
     } catch (e) {
       // user might have not given permission for starting a VPN yet
       log('Error while starting VPN', name: _tag, error: e);

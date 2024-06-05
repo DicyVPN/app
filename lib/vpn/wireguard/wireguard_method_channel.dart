@@ -13,8 +13,8 @@ class WireGuardMethodChannel implements WireGuard {
   }
 
   @override
-  Future<void> start(String config) {
-    return _methodChannel.invokeMethod('start', {'config': config});
+  Future<void> start(String config, String address) {
+    return _methodChannel.invokeMethod('start', {'config': config, 'address': address});
   }
 
   @override

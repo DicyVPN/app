@@ -23,7 +23,7 @@ abstract interface class WireGuard {
 
   Future<void> requestPermission();
 
-  Future<void> start(String config);
+  Future<void> start(String config, String address);
 
   Future<void> stop();
 

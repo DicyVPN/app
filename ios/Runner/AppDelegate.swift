@@ -25,10 +25,14 @@ import NetworkExtension
                     break
                 case "start":
                     let config: String? = (call.arguments as? [String: String])?["config"]
-                    if config != nil {
-                        self.start(config: config!, result: result)
-                    } else {
+                    if config == nil {
                         result(FlutterError(code: "missing_argument", message: "Missing argument 'config'", details: nil))
+                    }
+                    let address: String? = (call.arguments as? [String: String])?["address"]
+                    if address != nil {
+                        self.start(config: config!, address: address!, result: result)
+                    } else {
+                        result(FlutterError(code: "missing_argument", message: "Missing argument 'address'", details: nil))
                     }
                     break
                 case "stop":
@@ -49,9 +53,13 @@ import NetworkExtension
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
-    private func start(config: String, result: @escaping FlutterResult) {
-        Tunnel.start(config: config) { success in
-            result(success)
+    private func start(config: String, address: String, result: @escaping FlutterResult) {
+        Tunnel.start(config: config, address: address) { success in
+            if (success) {
+                result(true)
+            } else {
+                result(FlutterError(code: "unknown_error", message: "Error while starting VPN", details: nil))
+            }
         }
     }
     private func stop(result: @escaping FlutterResult) {
@@ -105,7 +113,7 @@ import NetworkExtension
     class Tunnel {
         static var lastStatus: Status = Status.disconnected
         
-        static func start(config: String, completion: @escaping (Bool) -> Void) {
+        static func start(config: String, address: String, completion: @escaping (Bool) -> Void) {
             NETunnelProviderManager.loadAllFromPreferences{ tunnelManagersInSettings, error in
                 if let error = error {
                     NSLog("Error (loadAllFromPreferences): \(error)")
@@ -118,6 +126,7 @@ import NetworkExtension
                 let protocolConfiguration = NETunnelProviderProtocol()
                 
                 protocolConfiguration.providerBundleIdentifier = Bundle.main.bundleIdentifier
+                protocolConfiguration.serverAddress = address
                 NSLog("Bundle ID: \(Bundle.main.bundleIdentifier ?? "nil")")
                 protocolConfiguration.providerConfiguration = [
                     "config": config
