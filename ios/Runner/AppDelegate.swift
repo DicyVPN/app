@@ -97,7 +97,7 @@ import NetworkExtension
             NETunnelProviderManager.loadAllFromPreferences { managers, error in
                 var status = managers?.first?.connection.status
                 if (status != nil) {
-                    events(Tunnel.onStatusChange(nevpnStatus: status!))
+                    events(Tunnel.onStatusChange(nevpnStatus: status!).rawValue)
                 }
             }
             
@@ -125,14 +125,14 @@ import NetworkExtension
                 
                 let protocolConfiguration = NETunnelProviderProtocol()
                 
-                protocolConfiguration.providerBundleIdentifier = Bundle.main.bundleIdentifier
+                protocolConfiguration.providerBundleIdentifier = "com.dicyvpn.ios.network-extension"
                 protocolConfiguration.serverAddress = address
-                NSLog("Bundle ID: \(Bundle.main.bundleIdentifier ?? "nil")")
                 protocolConfiguration.providerConfiguration = [
                     "config": config
                 ]
                 
                 tunnelManager.protocolConfiguration = protocolConfiguration
+                tunnelManager.localizedDescription = "DicyVPN WireGuard"
                 tunnelManager.isEnabled = true
                 
                 tunnelManager.saveToPreferences { error in
@@ -148,7 +148,9 @@ import NetworkExtension
                                 NSLog("Starting the tunnel")
                                 if let session = tunnelManager.connection as? NETunnelProviderSession {
                                     do {
-                                        try session.startTunnel(options: nil)
+                                        NSLog(config)
+                                        NSLog("Address: " + address)
+                                        try session.startTunnel()
                                         completion(true)
                                     } catch {
                                         NSLog("Error (startTunnel): \(error)")
@@ -193,7 +195,7 @@ import NetworkExtension
             }
         }
         
-        static func onStatusChange(nevpnStatus: NEVPNStatus) {
+        static func onStatusChange(nevpnStatus: NEVPNStatus) -> Status {
             let newStatus: Status = switch nevpnStatus {
             case NEVPNStatus.connected:
                 Status.connected
@@ -208,11 +210,12 @@ import NetworkExtension
             @unknown default:
                 lastStatus
             }
-            
+            NSLog("Tunnel.onStatusChange - newStatus: " + String(describing: newStatus))
             if (lastStatus != newStatus) {
                 lastStatus = newStatus
                 AppDelegate.vpnStatusSink?.success(event: lastStatus)
             }
+            return newStatus
         }
     }
 }

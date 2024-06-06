@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:dicyvpn/ui/api/api.dart';
 import 'package:dicyvpn/ui/api/dto.dart';
@@ -76,6 +77,9 @@ class VPN {
 
     if (currentServer != null && currentServer.type == ServerType.primary && currentServer.id != newServer?.id) {
       log('Disconnecting from the primary server');
+      if (Platform.isIOS) { // on iOS we cannot exclude DicyVPN, to successfully complete the API request we must first disconnect
+        await _wireGuard.stop();
+      }
       try {
         var api = await API.get();
         await api.disconnect(currentServer.id, currentServer.type);
@@ -113,13 +117,15 @@ class VPN {
 
   _getWireGuardConfig(ConnectionInfo info, String endpoint, String privateKey, String packageName) async {
     var dns = ['1.1.1.1', '1.1.0.0'];
+    // iOS does not connect if ExcludedApplications is present
+    var excludedApplications = Platform.isIOS ? '' : 'ExcludedApplications = $packageName';
 
     return '''
            [Interface]
            PrivateKey = $privateKey
            Address = ${info.internalIp}/32
            DNS = ${dns.join(', ')}
-           ExcludedApplications = $packageName
+           $excludedApplications
            
            [Peer]
            PublicKey = ${info.publicKey}
