@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -9,6 +10,16 @@ import 'package:dicyvpn/vpn/wireguard/wireguard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
+enum DNSType {
+  cloudflare(dns: ['1.1.1.1', '1.1.0.0']),
+  google(dns: ['8.8.8.8', '8.8.4.4']),
+  custom(dns: []);
+
+  const DNSType({required this.dns});
+
+  final List<String> dns;
+}
 
 class VPN {
   static VPN? _instance;
@@ -77,7 +88,8 @@ class VPN {
 
     if (currentServer != null && currentServer.type == ServerType.primary && currentServer.id != newServer?.id) {
       log('Disconnecting from the primary server');
-      if (Platform.isIOS) { // on iOS we cannot exclude DicyVPN, to successfully complete the API request we must first disconnect
+      if (Platform.isIOS) {
+        // on iOS we cannot exclude DicyVPN, to successfully complete the API request we must first disconnect
         await _wireGuard.stop();
       }
       try {
@@ -116,7 +128,26 @@ class VPN {
   }
 
   _getWireGuardConfig(ConnectionInfo info, String endpoint, String privateKey, String packageName) async {
-    var dns = ['1.1.1.1', '1.1.0.0'];
+    List<String> dns = DNSType.cloudflare.dns;
+    var enableCustomDNS = await getStorage().read(key: 'vpn.useCustomDns') == true.toString();
+    if (enableCustomDNS) {
+      try {
+        var dnsType = await getStorage().read(key: 'vpn.customDnsType');
+        var type = DNSType.values.byName(dnsType!);
+        if (type == DNSType.custom) {
+          var customDnsList = jsonDecode(await getStorage().read(key: 'vpn.dns') ?? '[]');
+          if (customDnsList is List && customDnsList.isNotEmpty) {
+            dns = [];
+            for (var address in customDnsList) {
+              dns.add(address);
+            }
+          }
+        } else {
+          dns = type.dns;
+        }
+      } catch (_) {}
+    }
+
     // iOS does not connect if ExcludedApplications is present
     var excludedApplications = Platform.isIOS ? '' : 'ExcludedApplications = $packageName';
 
