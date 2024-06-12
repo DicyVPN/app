@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:dicyvpn/ui/api/dto.dart';
+import 'package:dicyvpn/ui/components/custom_app_bar.dart';
 import 'package:dicyvpn/ui/components/server_selector.dart';
 import 'package:dicyvpn/ui/components/status_card.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
@@ -15,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class Home extends StatelessWidget {
-  Home({super.key});
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,11 @@ class Home extends StatelessWidget {
         icon: const Icon(Icons.home),
         label: Text(tr('navigationHome')),
         onClick: () {},
+      ),
+      NavigationItem(
+        icon: const Icon(Icons.settings),
+        label: Text(tr('navigationSettings')),
+        onClick: () => navigationKey.currentState?.pushNamed('/settings'),
       ),
       NavigationItem(
         icon: const Icon(Icons.logout),
@@ -35,30 +41,7 @@ class Home extends StatelessWidget {
     bool isLargeScreen = MediaQuery.of(context).size.width > 600;
 
     return Scaffold(
-      appBar: !isLargeScreen
-          ? AppBar(
-              backgroundColor: CustomColors.gray600,
-              centerTitle: true,
-              title: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 40),
-                  child: Image.asset('assets/images/full_logo.png', semanticLabel: tr('dicyvpnLogo')),
-                ),
-              ),
-              leading: Builder(
-                builder: (context) {
-                  return IconButton(
-                    icon: const Icon(Icons.menu),
-                    tooltip: tr('menuLabel'),
-                    onPressed: () {
-                      Scaffold.of(context).openDrawer();
-                    },
-                  );
-                },
-              ),
-            )
-          : null,
+      appBar: !isLargeScreen ? CustomAppBar.getAppBar(canGoBack: false) : null,
       body: SafeArea(
         child: isLargeScreen
             ? Row(
@@ -105,6 +88,7 @@ class Home extends StatelessWidget {
       drawer: !isLargeScreen
           ? NavigationDrawer(
               onDestinationSelected: (index) {
+                Navigator.of(context).pop(); // close the drawer
                 navigationItems[index].onClick();
               },
               children: [
@@ -136,6 +120,8 @@ class MainColumn extends StatelessWidget {
   static ValueNotifier<Server?> lastServerNotifier = VPN.get().lastServer;
 
   final ScrollController _controller = ScrollController();
+
+  MainColumn({super.key});
 
   @override
   Widget build(BuildContext context) {

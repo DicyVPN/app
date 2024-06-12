@@ -37,6 +37,7 @@
   "notConnected": "Disconnected",
   "menuLabel": "Menu",
   "navigationHome": "Home",
+  "navigationSettings": "Settings",
   "navigationLogout": "Logout",
   "logoutLabelSignOut": "Sign out",
   "logoutLabelGoBack": "Go back",
@@ -53,5 +54,10 @@
   "urlAccount": "https://dicyvpn.com/account",
   "sessionExpiredLoginAgain": "Your session has expired, please login again",
   "unknownNetworkErrorTryAgain": "Unknown network error, please try again",
-  "unknownErrorTryAgain": "Unknown error, please try again"
+  "unknownErrorTryAgain": "Unknown error, please try again",
+  "settingsUseCustomDNSServers": "Use custom DNS servers",
+  "settingsCustomDNSDescription": "By using custom DNS servers, you can have more control over your internet connection but potentially degrade your internet speed and your privacy",
+  "settingsDNSCustom": "Custom",
+  "settingsNoCustomDNS": "No custom DNS server",
+  "settingsInvalidIPAddress": "\"{address}\" is not a valid IPv4 or IPv6 address"
 }

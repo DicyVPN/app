@@ -5,6 +5,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:dicyvpn/home.dart';
 import 'package:dicyvpn/login.dart';
 import 'package:dicyvpn/logout.dart';
+import 'package:dicyvpn/settings.dart';
 import 'package:dicyvpn/ui/theme/colors.dart';
 import 'package:dicyvpn/ui/theme/theme.dart';
 import 'package:dicyvpn/utils/deserialize_preferences.dart';
@@ -57,7 +58,8 @@ class DicyVPN extends StatelessWidget {
         '/startup': (context) => const Startup(),
         '/login': (context) => const Login(),
         '/logout': (context) => const Logout(),
-        '/home': (context) => Home(),
+        '/home': (context) => const Home(),
+        '/settings': (context) => const Settings(),
       },
     );
   }
