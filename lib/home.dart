@@ -12,16 +12,10 @@ import 'package:dicyvpn/vpn/vpn.dart';
 import 'package:dicyvpn/vpn/wireguard/wireguard.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Home extends StatelessWidget {
   Home({super.key});
-
-  static const _backgroundColor = CustomColors.gray800;
-  static const _textColor = CustomColors.gray200;
-  static ValueNotifier<Status> statusNotifier = VPN.get().status;
-  static ValueNotifier<Server?> lastServerNotifier = VPN.get().lastServer;
-
-  final ScrollController _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -38,84 +32,152 @@ class Home extends StatelessWidget {
       ),
     ];
 
+    bool isLargeScreen = MediaQuery.of(context).size.width > 600;
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: CustomColors.gray600,
-        centerTitle: true,
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Container(
-            constraints: const BoxConstraints(maxHeight: 40),
-            child: Image.asset('assets/images/full_logo.png', semanticLabel: tr('dicyvpnLogo')),
-          ),
-        ),
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: const Icon(Icons.menu),
-              tooltip: tr('menuLabel'),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-        ),
-      ),
+      appBar: !isLargeScreen
+          ? AppBar(
+              backgroundColor: CustomColors.gray600,
+              centerTitle: true,
+              title: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 40),
+                  child: Image.asset('assets/images/full_logo.png', semanticLabel: tr('dicyvpnLogo')),
+                ),
+              ),
+              leading: Builder(
+                builder: (context) {
+                  return IconButton(
+                    icon: const Icon(Icons.menu),
+                    tooltip: tr('menuLabel'),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  );
+                },
+              ),
+            )
+          : null,
       body: SafeArea(
-        child: SingleChildScrollView(
-          controller: _controller,
-          child: Column(
-            children: <Widget>[
-              Material(
-                color: _backgroundColor,
-                elevation: 4,
-                textStyle: const TextStyle(color: _textColor),
-                child: SizedBox(
-                  width: double.maxFinite,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: StatusCard(
-                      _backgroundColor,
-                      _textColor,
-                      statusNotifier: statusNotifier,
-                      lastServerNotifier: lastServerNotifier,
-                      buttonAction: _onStatusCardButtonClick,
+        child: isLargeScreen
+            ? Row(
+                children: [
+                  NavigationRail(
+                    onDestinationSelected: (int index) {
+                      navigationItems[index].onClick();
+                    },
+                    destinations: [
+                      for (var item in navigationItems) ...[
+                        NavigationRailDestination(
+                          icon: item.icon,
+                          label: item.label,
+                        ),
+                      ],
+                    ],
+                    selectedIndex: 0,
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Container(
+                      color: CustomColors.gray800,
+                      height: double.infinity,
+                      width: double.infinity,
+                      child: ClipRect(
+                        child: Transform.scale(
+                          scale: 1.5,
+                          child: SvgPicture.asset(
+                            'assets/images/world_map.svg',
+                            fit: BoxFit.cover,
+                            colorFilter: const ColorFilter.mode(CustomColors.gray100, BlendMode.srcIn),
+                            width: double.infinity,
+                            excludeFromSemantics: true,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Material(
-                color: _backgroundColor,
-                elevation: 4,
-                textStyle: const TextStyle(color: _textColor),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ServerSelector(_textColor, (server) async {
-                    if (server.type == ServerType.secondary && !await _hasAgreedToUseSecondaryServers()) {
-                      _showSecondaryServersAgreement();
-                      return;
-                    }
-                    _controller.animateTo(0, curve: Curves.easeOut, duration: const Duration(milliseconds: 200));
-                    _onServerClick(server);
-                  }),
-                ),
-              ),
-            ],
-          ),
-        ),
+                  Expanded(flex: 6, child: MainColumn()),
+                ],
+              )
+            : MainColumn(),
       ),
-      drawer: NavigationDrawer(
-        onDestinationSelected: (index) {
-          navigationItems[index].onClick();
-        },
-        children: [
-          for (var item in navigationItems) ...[
-            NavigationDrawerDestination(
-              icon: item.icon,
-              label: item.label,
+      drawer: !isLargeScreen
+          ? NavigationDrawer(
+              onDestinationSelected: (index) {
+                navigationItems[index].onClick();
+              },
+              children: [
+                for (var item in navigationItems) ...[
+                  NavigationDrawerDestination(
+                    icon: item.icon,
+                    label: item.label,
+                  ),
+                ],
+              ],
+            )
+          : null,
+    );
+  }
+}
+
+class NavigationItem {
+  final Icon icon;
+  final Text label;
+  final VoidCallback onClick;
+
+  NavigationItem({required this.icon, required this.label, required this.onClick});
+}
+
+class MainColumn extends StatelessWidget {
+  static const _backgroundColor = CustomColors.gray800;
+  static const _textColor = CustomColors.gray200;
+  static ValueNotifier<Status> statusNotifier = VPN.get().status;
+  static ValueNotifier<Server?> lastServerNotifier = VPN.get().lastServer;
+
+  final ScrollController _controller = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      controller: _controller,
+      child: Column(
+        children: <Widget>[
+          Material(
+            color: _backgroundColor,
+            elevation: 4,
+            textStyle: const TextStyle(color: _textColor),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: StatusCard(
+                  _backgroundColor,
+                  _textColor,
+                  statusNotifier: statusNotifier,
+                  lastServerNotifier: lastServerNotifier,
+                  buttonAction: _onStatusCardButtonClick,
+                ),
+              ),
             ),
-          ],
+          ),
+          const SizedBox(height: 8),
+          Material(
+            color: _backgroundColor,
+            elevation: 4,
+            textStyle: const TextStyle(color: _textColor),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: ServerSelector(_textColor, (server) async {
+                if (server.type == ServerType.secondary && !await _hasAgreedToUseSecondaryServers()) {
+                  _showSecondaryServersAgreement();
+                  return;
+                }
+                _controller.animateTo(0, curve: Curves.easeOut, duration: const Duration(milliseconds: 200));
+                _onServerClick(server);
+              }),
+            ),
+          ),
         ],
       ),
     );
@@ -190,12 +252,4 @@ class Home extends StatelessWidget {
       },
     );
   }
-}
-
-class NavigationItem {
-  final Icon icon;
-  final Text label;
-  final VoidCallback onClick;
-
-  NavigationItem({required this.icon, required this.label, required this.onClick});
 }
