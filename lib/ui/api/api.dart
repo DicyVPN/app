@@ -14,8 +14,10 @@ import 'dto.dart';
 const _baseUrl = 'https://api.dicyvpn.com';
 const _tag = 'DicyVPN/API';
 
+
 class PublicAPI {
   static PublicAPI? _instance;
+
 
   static Future<PublicAPI> get() async {
     return _instance ??= PublicAPI._internal(await _getDioClient());
@@ -32,6 +34,7 @@ class PublicAPI {
       'isDevice': true,
     });
   }
+
 
   Future<Response> refreshToken(String refreshToken, String refreshTokenId, String accountId) {
     return dio.post('/refresh-token', data: {
@@ -54,6 +57,7 @@ class PublicAPI {
 class API {
   static API? _instance;
 
+ 
   static Future<API> get() async {
     var storage = getStorage();
     _token = await storage.read(key: 'auth.token');
@@ -78,6 +82,7 @@ class API {
   Future<Response> disconnect(String id, ServerType type) {
     return dio.post('/servers/disconnect/$id', data: {'type': type.name, 'protocol': 'wireguard'});
   }
+
 
   Future<Response> logout() {
     return dio.get('/logout');
@@ -182,6 +187,7 @@ class API {
     return dio;
   }
 }
+
 
 Future<String> _getUserAgent() async {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();

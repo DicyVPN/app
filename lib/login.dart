@@ -22,6 +22,7 @@ class _LoginState extends State<Login> {
   String _email = '';
   String _password = '';
   bool _passwordVisible = false;
+  
   final RegExp _emailRegex = RegExp(
       '[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+');
 

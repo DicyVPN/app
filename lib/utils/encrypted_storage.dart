@@ -4,6 +4,7 @@ AndroidOptions _getAndroidOptions() => const AndroidOptions(encryptedSharedPrefe
 
 FlutterSecureStorage? _storage;
 
+
 FlutterSecureStorage getStorage() {
   return _storage ??= FlutterSecureStorage(aOptions: _getAndroidOptions());
 }

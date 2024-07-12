@@ -79,6 +79,7 @@ class ProtocolPorts {
   final List<int> udp;
   final List<int> tcp;
 
+
   ProtocolPorts(this.udp, this.tcp);
 
   factory ProtocolPorts.fromJson(Map<String, dynamic> json) => _$ProtocolPortsFromJson(json);

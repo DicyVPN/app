@@ -1,3 +1,7 @@
+/// This file contains the interface for the WireGuard VPN implementation.
+/// It provides methods for requesting permission, starting and stopping the VPN connection,
+/// getting the status of the VPN connection, and streaming the status updates.
+
 import 'dart:io';
 
 import 'package:dicyvpn/vpn/status.dart';

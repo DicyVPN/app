@@ -1,5 +1,16 @@
 import 'dart:convert';
 
+/// Deserialize the preferences file and return a map of key-value pairs.
+///
+/// The [file] parameter represents the preferences file to be deserialized.
+/// It should be a [File] object.
+///
+/// The function reads the bytes from the file and iterates through them to
+/// extract the key-value pairs. It uses a state machine to keep track of the
+/// current state while parsing the bytes.
+///
+/// Returns a [Map] containing the deserialized key-value pairs, where the keys
+/// are of type [String] and the values are of type [String].
 Map<String, String> deserializePreferencesFile(file) {
   var bytes = file.readAsBytesSync();
 
@@ -95,6 +106,7 @@ Map<String, String> deserializePreferencesFile(file) {
   return values;
 }
 
+/// Decodes a list of integers in Little-Endian Base 128 (LEB128) format.
 int _decodeLEB128(List<int> sizeHex) {
   var index = 0;
   var result = 0;
@@ -113,6 +125,7 @@ int _decodeLEB128(List<int> sizeHex) {
   return result;
 }
 
+/// Prints the key-value pairs in the given map.
 void _printValues(Map<String, String> values) {
   var strings = [];
   for (var entry in values.entries) {
@@ -120,6 +133,7 @@ void _printValues(Map<String, String> values) {
   }
 }
 
+/// Represents the different states for parsing preferences.
 enum State {
   none,
   readKeyStart0A, // key start
@@ -127,5 +141,5 @@ enum State {
   readKeyFinish,
   readValueStart12, // value start
   readValueSize2A, // value size for strings
-  readValuesSize08; // value size for booleans
+  readValuesSize08, // value size for booleans
 }

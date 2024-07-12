@@ -212,17 +212,22 @@ class _SettingsState extends State<Settings> {
 
   Future<bool> _readFromSettings() async {
     var storage = getStorage();
+
     _enableCustomDNS = await storage.read(key: 'vpn.useCustomDns') == true.toString();
+
     var dnsType = await storage.read(key: 'vpn.customDnsType');
+
     try {
       _selectedDnsType = DNSType.values.byName(dnsType!);
     } catch (_) {
       _selectedDnsType = DNSType.cloudflare;
     }
+
     var customDnsList = jsonDecode(await storage.read(key: 'vpn.dns') ?? '[]');
 
     // for some reason the assignment fails without any error if we use customDNS directly
     List<String> validCustomDns = [];
+
     for (var dns in customDnsList) {
       if (_isIPValid(dns)) {
         validCustomDns.add(dns);
@@ -234,6 +239,7 @@ class _SettingsState extends State<Settings> {
       DNSType.google: DNSType.google.dns,
       DNSType.custom: validCustomDns,
     };
+
     return true;
   }
 
@@ -254,6 +260,7 @@ class _SettingsState extends State<Settings> {
     });
   }
 
+
   bool _isIPValid(String address) {
     try {
       Uri.parseIPv4Address(address);
@@ -261,12 +268,12 @@ class _SettingsState extends State<Settings> {
       try {
         Uri.parseIPv6Address(address);
       } catch (_) {
-        // not an IPv4 or IPv6 address
         return false;
       }
     }
     return true;
   }
+
 
   void _saveDnsList(List<String> dnsList) {
     getStorage().write(key: 'vpn.dns', value: jsonEncode(dnsList));

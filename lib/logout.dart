@@ -60,6 +60,7 @@ class _LogoutState extends State<Logout> {
     );
   }
 
+
   void logout() async {
     setState(() {
       _loading = true;

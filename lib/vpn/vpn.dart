@@ -1,3 +1,29 @@
+/// This file contains the implementation of the VPN class, which is responsible for managing the VPN connection.
+/// It provides methods for initializing the VPN, connecting to a server, stopping the VPN, and handling status changes.
+///
+/// The VPN class uses the WireGuard class to interact with the WireGuard VPN protocol.
+/// It also uses the API class to communicate with the server API and retrieve connection information.
+///
+/// The VPN class is a singleton, meaning that there can only be one instance of it.
+/// To use the VPN class, you need to call the [initialize] method first, and then you can call the [get] method to retrieve the instance.
+///
+/// The VPN class also defines the [DNSType] enum, which represents different types of DNS servers.
+/// Each DNS type has a list of DNS server addresses associated with it.
+///
+/// The VPN class throws a [NoSubscriptionException] if there is no subscription available when connecting to a server.
+///
+/// The [_getLastServer] function is a private function that retrieves the last connected server from the storage.
+/// It returns a [Server] object representing the last connected server, or `null` if no server is found.
+///
+/// Example usage:
+///
+/// ```dart
+/// await VPN.initialize();
+/// VPN vpn = VPN.get();
+/// vpn.connect(server, currentServer);
+/// vpn.stop(isSwitching, currentServer, newServer: newServer);
+/// ```
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -127,7 +153,10 @@ class VPN {
     }
   }
 
-  _getWireGuardConfig(ConnectionInfo info, String endpoint, String privateKey, String packageName) async {
+  /// Generates a WireGuard configuration based on the provided [info], [endpoint], [privateKey], and [packageName].
+  /// The configuration includes DNS settings, excluded applications (if applicable), and peer information.
+  /// Returns the generated WireGuard configuration as a string.
+  Future<String> _getWireGuardConfig(ConnectionInfo info, String endpoint, String privateKey, String packageName) async {
     List<String> dns = DNSType.cloudflare.dns;
     var enableCustomDNS = await getStorage().read(key: 'vpn.useCustomDns') == true.toString();
     if (enableCustomDNS) {
