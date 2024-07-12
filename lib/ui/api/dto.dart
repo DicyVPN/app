@@ -41,16 +41,20 @@ class Server {
   }
 }
 
+/// Class representing a list of servers.
 @JsonSerializable()
 class ServerList {
   final Map<String, List<Server>> primary;
   final Map<String, List<Server>> secondary;
 
+  /// Constructor for the ServerList class.
   ServerList(this.primary, this.secondary);
 
+  /// Factory method to create a ServerList instance from JSON.
   factory ServerList.fromJson(Map<String, dynamic> json) => _$ServerListFromJson(json);
 }
 
+/// Class representing connection information.
 @JsonSerializable()
 class ConnectionInfo {
   final String serverIp;
@@ -59,27 +63,35 @@ class ConnectionInfo {
   final String internalIp;
   final ConnectionPorts ports;
 
+  /// Constructor for the ConnectionInfo class.
   ConnectionInfo(this.serverIp, this.publicKey, this.privateKey, this.internalIp, this.ports);
 
+  /// Factory method to create a ConnectionInfo instance from JSON.
   factory ConnectionInfo.fromJson(Map<String, dynamic> json) => _$ConnectionInfoFromJson(json);
 }
 
+/// Class representing connection ports.
 @JsonSerializable()
 class ConnectionPorts {
   final ProtocolPorts wireguard;
   final ProtocolPorts openvpn;
 
+  /// Constructor for the ConnectionPorts class.
   ConnectionPorts(this.wireguard, this.openvpn);
 
+  /// Factory method to create a ConnectionPorts instance from JSON.
   factory ConnectionPorts.fromJson(Map<String, dynamic> json) => _$ConnectionPortsFromJson(json);
 }
 
+/// Class representing protocol ports.
 @JsonSerializable()
 class ProtocolPorts {
   final List<int> udp;
   final List<int> tcp;
 
+  /// Constructor for the ProtocolPorts class.
   ProtocolPorts(this.udp, this.tcp);
 
+  /// Factory method to create a ProtocolPorts instance from JSON.
   factory ProtocolPorts.fromJson(Map<String, dynamic> json) => _$ProtocolPortsFromJson(json);
 }

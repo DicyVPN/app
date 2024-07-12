@@ -22,6 +22,7 @@ class _LoginState extends State<Login> {
   String _email = '';
   String _password = '';
   bool _passwordVisible = false;
+  
   final RegExp _emailRegex = RegExp(
       '[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+');
 
@@ -171,6 +172,17 @@ class _LoginState extends State<Login> {
     );
   }
 
+  /// Performs the login operation with the given [email] and [password].
+  /// 
+  /// This method sets the [_loading] state to true, indicating that the login process is in progress.
+  /// It then tries to authenticate the user by calling the login API with the provided credentials.
+  /// If the login is successful, it sets the authentication information using the [API.setAuthInfo] method
+  /// and navigates to the home screen using the [navigatorState.popAndPushNamed] method.
+  /// 
+  /// If an error occurs during the login process, it handles different types of errors and displays
+  /// appropriate error messages using the [openDialog] method.
+  /// 
+  /// After the login process is complete, it sets the [_loading] state back to false.
   void login(NavigatorState navigatorState, String email, String password) async {
     setState(() {
       _loading = true;

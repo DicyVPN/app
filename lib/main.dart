@@ -34,6 +34,10 @@ void main() async {
   );
 }
 
+/// The main entry point for the [DicyVPN] application.
+/// 
+/// This class represents the root widget of the application and is responsible for
+/// configuring the overall theme, localization, and routing of the app.
 class DicyVPN extends StatelessWidget {
   const DicyVPN({super.key});
 
@@ -78,6 +82,15 @@ class Startup extends StatelessWidget {
     );
   }
 
+  /// Loads the authentication information and navigates to the appropriate screen.
+  ///
+  /// This method checks if the refresh token exists in the storage. If it does,
+  /// it navigates to the home screen. Otherwise, it attempts to retrieve the
+  /// authentication data from a previous version of the app. If the old preferences
+  /// file is found and contains the necessary authentication information, it moves
+  /// the data to the encrypted storage and navigates to the home screen. If the old
+  /// preferences file is not found or does not contain the required information, it
+  /// navigates to the login screen.
   void _loadAuthInfoAndNavigate() async {
     var storage = getStorage();
     storage.containsKey(key: 'auth.refreshToken').then((hasRefreshToken) async {

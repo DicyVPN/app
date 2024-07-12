@@ -3,6 +3,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+/// Opens a dialog with the given [message].
+/// 
+/// The [title] parameter is optional and specifies the title of the dialog.
+/// The [link] parameter is optional and specifies a URL to be launched when the link button is pressed.
+/// The [linkText] parameter is optional and specifies the text to be displayed on the link button.
+/// 
+/// Returns a [Future] that resolves to the value returned by the dialog.
 Future<T?> openDialog<T>(String message, {String? title, String? link, String? linkText}) {
   return showDialog<T>(
     context: navigationKey.currentContext!,
