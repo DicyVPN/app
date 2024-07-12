@@ -14,14 +14,11 @@ import 'dto.dart';
 const _baseUrl = 'https://api.dicyvpn.com';
 const _tag = 'DicyVPN/API';
 
-/// A class representing the public API for making HTTP requests.
+
 class PublicAPI {
   static PublicAPI? _instance;
 
-  /// Returns a singleton instance of the [PublicAPI] class.
-  ///
-  /// If the instance has not been created yet, it will be created and
-  /// initialized with a Dio client.
+
   static Future<PublicAPI> get() async {
     return _instance ??= PublicAPI._internal(await _getDioClient());
   }
@@ -30,10 +27,6 @@ class PublicAPI {
 
   final Dio dio;
 
-  /// Sends a login request with the specified [email] and [password].
-  ///
-  /// The [isDevice] parameter indicates whether the login request is coming
-  /// from a device.
   Future<Response> login(String email, String password) {
     return dio.post('/login', data: {
       'email': email,
@@ -42,8 +35,7 @@ class PublicAPI {
     });
   }
 
-  /// Sends a refresh token request with the specified [refreshToken],
-  /// [refreshTokenId], and [accountId].
+
   Future<Response> refreshToken(String refreshToken, String refreshTokenId, String accountId) {
     return dio.post('/refresh-token', data: {
       'refreshToken': refreshToken,
@@ -62,17 +54,10 @@ class PublicAPI {
   }
 }
 
-/// This class represents an API client for making HTTP requests to a server.
-/// It provides methods for retrieving server lists, connecting to servers,
-/// disconnecting from servers, logging out, and managing authentication tokens.
 class API {
   static API? _instance;
 
-  /// Retrieves an instance of the API client.
-  ///
-  /// This method returns a singleton instance of the API client.
-  /// If an instance already exists, it is returned. Otherwise, a new instance
-  /// is created and returned.
+ 
   static Future<API> get() async {
     var storage = getStorage();
     _token = await storage.read(key: 'auth.token');
@@ -84,46 +69,25 @@ class API {
   static String? _token;
   final Dio dio;
 
-  /// Retrieves a list of servers from the server.
-  ///
-  /// This method sends a GET request to the server to retrieve a list of servers.
-  /// The response is then parsed into a [ServerList] object and returned.
   Future<ServerList> getServersList() async {
     var response = await dio.get('/servers/list');
     return ServerList.fromJson(response.data);
   }
 
-  /// Connects to a server with the specified ID and type.
-  ///
-  /// This method sends a POST request to the server to connect to a server
-  /// with the specified ID and type. The response is then parsed into a
-  /// [ConnectionInfo] object and returned.
   Future<ConnectionInfo> connect(String id, ServerType type) async {
     var response = await dio.post('/servers/connect/$id', data: {'type': type.name, 'protocol': 'wireguard'});
     return ConnectionInfo.fromJson(response.data);
   }
 
-  /// Disconnects from a server with the specified ID and type.
-  ///
-  /// This method sends a POST request to the server to disconnect from a server
-  /// with the specified ID and type. The response is returned as a [Response] object.
   Future<Response> disconnect(String id, ServerType type) {
     return dio.post('/servers/disconnect/$id', data: {'type': type.name, 'protocol': 'wireguard'});
   }
 
-  /// Logs out the user.
-  ///
-  /// This method sends a GET request to the server to log out the user.
-  /// The response is returned as a [Response] object.
+
   Future<Response> logout() {
     return dio.get('/logout');
   }
 
-  /// Sets the authentication information.
-  ///
-  /// This method sets the authentication information based on the provided headers.
-  /// It retrieves the refresh token, private key, and other information from the headers
-  /// and stores them in the storage.
   static Future<void> setAuthInfo(Headers headers) async {
     var refreshToken = headers.value('X-Auth-Refresh-Token');
     var privateKey = headers.value('X-Auth-Private-Key');
@@ -136,11 +100,6 @@ class API {
     ]);
   }
 
-  /// Removes the authentication information.
-  ///
-  /// This method removes all the authentication information from the storage,
-  /// including the token, refresh token, refresh token ID, account ID, private key,
-  /// and plan. It also navigates to the login screen.
   static Future<void> removeAuthInfo({String? reason}) async {
     var storage = getStorage();
     await Future.wait([
@@ -155,11 +114,6 @@ class API {
     navigationKey.currentState?.pushNamedAndRemoveUntil('/login', (route) => false, arguments: reason);
   }
 
-  /// Sets a new authentication token.
-  ///
-  /// This method sets a new authentication token based on the provided headers.
-  /// It retrieves the token, refresh token ID, account ID, and plan from the headers
-  /// and stores them in the storage.
   static Future<void> _setNewToken(Headers headers) async {
     _token = headers.value('X-Auth-Token');
     var payload = base64.normalize(_token!.split('.')[1]); // pad the base64 string with '='
@@ -183,17 +137,6 @@ class API {
     return _token;
   }
 
-  /// Returns a [Dio] client with the necessary configurations for making API requests.
-  ///
-  /// The [storage] parameter is used to retrieve the necessary authentication information.
-  /// The returned [Dio] client includes a base URL, user agent header, and an interceptor
-  /// for handling authentication tokens.
-  ///
-  /// If the authentication token has expired, the interceptor will attempt to refresh
-  /// the token using the provided refresh token, refresh token ID, and account ID.
-  /// If the token refresh fails, the user will be logged out.
-  ///
-  /// The [Dio] client is returned as a [Future].
   static Future<Dio> _getDioClient(FlutterSecureStorage storage) async {
     var dio = Dio(BaseOptions(
       baseUrl: '$_baseUrl/v1',

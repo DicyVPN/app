@@ -1,8 +1,6 @@
 import 'package:dicyvpn/vpn/status.dart';
 import 'package:flutter/services.dart';
-
 import 'wireguard.dart';
-
 
 class WireGuardMethodChannel implements WireGuard {
   static const _methodChannel =
