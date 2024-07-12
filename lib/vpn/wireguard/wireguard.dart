@@ -9,11 +9,9 @@ import 'package:flutter/foundation.dart';
 
 import 'wireguard_method_channel.dart';
 
-/// The interface for the WireGuard VPN implementation.
 abstract interface class WireGuard {
   static WireGuard? _instance;
 
-  /// Returns the singleton instance of the WireGuard VPN implementation.
   static WireGuard get() {
     if (_instance == null) {
       if (kIsWeb) {
@@ -27,18 +25,13 @@ abstract interface class WireGuard {
     return _instance!;
   }
 
-  /// Requests permission to use the VPN.
   Future<void> requestPermission();
 
-  /// Starts the VPN connection with the specified configuration and address.
   Future<void> start(String config, String address);
 
-  /// Stops the VPN connection.
   Future<void> stop();
 
-  /// Gets the current status of the VPN connection.
   Future<Status> getStatus();
 
-  /// Streams the status updates of the VPN connection.
   Stream<Status> getStatusStream();
 }

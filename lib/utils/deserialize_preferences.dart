@@ -107,7 +107,6 @@ Map<String, String> deserializePreferencesFile(file) {
 }
 
 /// Decodes a list of integers in Little-Endian Base 128 (LEB128) format.
-/// Returns the decoded integer value.
 int _decodeLEB128(List<int> sizeHex) {
   var index = 0;
   var result = 0;

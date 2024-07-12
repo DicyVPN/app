@@ -210,15 +210,11 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  /// Reads settings from storage and initializes the necessary variables.
-  /// Returns a boolean indicating whether the operation was successful.
   Future<bool> _readFromSettings() async {
     var storage = getStorage();
 
-    // Read the 'vpn.useCustomDns' setting from storage and assign it to '_enableCustomDNS'
     _enableCustomDNS = await storage.read(key: 'vpn.useCustomDns') == true.toString();
 
-    // Read the 'vpn.customDnsType' setting from storage and assign it to 'dnsType'
     var dnsType = await storage.read(key: 'vpn.customDnsType');
 
     try {
@@ -227,9 +223,9 @@ class _SettingsState extends State<Settings> {
       _selectedDnsType = DNSType.cloudflare;
     }
 
-    // Read the 'vpn.dns' setting from storage and decode it as a JSON array
     var customDnsList = jsonDecode(await storage.read(key: 'vpn.dns') ?? '[]');
 
+    // for some reason the assignment fails without any error if we use customDNS directly
     List<String> validCustomDns = [];
 
     for (var dns in customDnsList) {
@@ -238,20 +234,15 @@ class _SettingsState extends State<Settings> {
       }
     }
 
-    // Assign the DNS values based on the selected DNS type
     _dnsByType = {
       DNSType.cloudflare: DNSType.cloudflare.dns,
       DNSType.google: DNSType.google.dns,
       DNSType.custom: validCustomDns,
     };
 
-    // Return true to indicate that the operation was successful
     return true;
   }
 
-  /// Tries to add a DNS address to the list of DNS addresses.
-  /// If the provided IP address is valid, it is added to the list and saved.
-  /// If the IP address is invalid, an error message is shown.
   void _tryAddingDNS() {
     setState(() {
       String ipAddress = editingController.text.trim();
@@ -269,8 +260,7 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-  /// Checks if the provided IP address is valid.
-  /// Returns true if the address is a valid IPv4 or IPv6 address, false otherwise.
+
   bool _isIPValid(String address) {
     try {
       Uri.parseIPv4Address(address);
@@ -278,14 +268,13 @@ class _SettingsState extends State<Settings> {
       try {
         Uri.parseIPv6Address(address);
       } catch (_) {
-        // not an IPv4 or IPv6 address
         return false;
       }
     }
     return true;
   }
 
-  /// Saves the list of DNS addresses to persistent storage.
+
   void _saveDnsList(List<String> dnsList) {
     getStorage().write(key: 'vpn.dns', value: jsonEncode(dnsList));
   }

@@ -5,15 +5,15 @@
 /// It also uses the API class to communicate with the server API and retrieve connection information.
 ///
 /// The VPN class is a singleton, meaning that there can only be one instance of it.
-/// To use the VPN class, you need to call the `initialize` method first, and then you can call the `get` method to retrieve the instance.
+/// To use the VPN class, you need to call the [initialize] method first, and then you can call the [get] method to retrieve the instance.
 ///
-/// The VPN class also defines the `DNSType` enum, which represents different types of DNS servers.
+/// The VPN class also defines the [DNSType] enum, which represents different types of DNS servers.
 /// Each DNS type has a list of DNS server addresses associated with it.
 ///
-/// The VPN class throws a `NoSubscriptionException` if there is no subscription available when connecting to a server.
+/// The VPN class throws a [NoSubscriptionException] if there is no subscription available when connecting to a server.
 ///
-/// The `_getLastServer` function is a private function that retrieves the last connected server from the storage.
-/// It returns a `Server` object representing the last connected server, or `null` if no server is found.
+/// The [_getLastServer] function is a private function that retrieves the last connected server from the storage.
+/// It returns a [Server] object representing the last connected server, or `null` if no server is found.
 ///
 /// Example usage:
 ///

@@ -60,8 +60,7 @@ class _LogoutState extends State<Logout> {
     );
   }
 
-  /// Logs out the user by making an API call to logout and removing the authentication information.
-  /// Displays error messages if there is an error during the logout process.
+
   void logout() async {
     setState(() {
       _loading = true;

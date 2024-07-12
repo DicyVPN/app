@@ -1,20 +1,3 @@
-/// The [Home] widget is a stateless widget that represents the main screen of the application.
-/// It displays a navigation rail on large screens and a navigation drawer on small screens.
-/// The main content of the screen is displayed in the [MainColumn] widget, which contains
-/// a status card and a server selector.
-///
-/// The [NavigationItem] class represents an item in the navigation rail or drawer.
-/// It contains an icon, a label, and an `onClick` callback function.
-///
-/// The [MainColumn] class is a stateless widget that represents the main content of the screen.
-/// It contains a status card and a server selector. The status card displays the current VPN status
-/// and allows the user to connect or disconnect from the VPN. The server selector allows the user
-/// to select a VPN server to connect to.
-///
-/// The [MainColumn] class also contains helper methods for handling button clicks and server selection,
-/// as well as methods for checking if the user has agreed to use secondary servers and displaying
-/// an agreement dialog if necessary.
-
 import 'dart:developer';
 
 import 'package:dicyvpn/ui/api/dto.dart';
