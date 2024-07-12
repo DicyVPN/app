@@ -245,9 +245,7 @@ class API {
   }
 }
 
-/// Retrieves the user agent string for the current device.
-/// The user agent string includes information about the device's platform and app version.
-/// Returns a [Future] that completes with the user agent string.
+
 Future<String> _getUserAgent() async {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
