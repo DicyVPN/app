@@ -1,5 +1,3 @@
-/// FILEPATH: /c:/Users/Davide/Desktop/Projects/DicyVPN/app/lib/vpn/vpn.dart
-///
 /// This file contains the implementation of the VPN class, which is responsible for managing the VPN connection.
 /// It provides methods for initializing the VPN, connecting to a server, stopping the VPN, and handling status changes.
 ///
