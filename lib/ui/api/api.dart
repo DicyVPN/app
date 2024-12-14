@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io' show Platform;
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dicyvpn/utils/encrypted_storage.dart';
 import 'package:dicyvpn/utils/navigation_key.dart';
@@ -11,7 +12,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import 'dto.dart';
 
-const _baseUrl = 'https://api.dicyvpn.com';
+const _primaryUrl = 'https://api.dicyvpn.com';
+const _backupUrl = 'https://vpn-api.dicy.workers.dev';
+var _baseUrl = _primaryUrl;
 const _tag = 'DicyVPN/API';
 
 class PublicAPI {
@@ -42,12 +45,25 @@ class PublicAPI {
   }
 
   static Future<Dio> _getDioClient() async {
-    return Dio(BaseOptions(
+    var dio = Dio(BaseOptions(
       baseUrl: '$_baseUrl/v1/public',
       headers: <String, String>{
         'User-Agent': await _getUserAgent(),
       },
     ));
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (DioException error, ErrorInterceptorHandler handler) async {
+          if (await attemptBackupUrl(dio, error, handler, '/v1/public')) {
+            return;
+          }
+          return handler.next(error);
+        },
+      ),
+    );
+
+    return dio;
   }
 }
 
@@ -173,6 +189,8 @@ class API {
             } on DioException catch (e) {
               return handler.next(e);
             }
+          } else if (await attemptBackupUrl(dio, error, handler, '/v1')) {
+            return;
           }
           return handler.next(error);
         },
@@ -211,4 +229,25 @@ Future<String> _getUserAgent() async {
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   return 'DicyVPN/${packageInfo.version} $platformInfo';
+}
+
+Future<bool> attemptBackupUrl(Dio dio, DioException error, ErrorInterceptorHandler handler, String urlSuffix) async {
+  if (error.response == null) {
+    // no response from the server or filtered by the network
+    log('No response from the server', name: _tag);
+    // attempt to switch to the backup API URL if not already done
+    if (_baseUrl == _primaryUrl) {
+      try {
+        log('Retrying request with backup API URL', name: _tag);
+        var newBaseUrl = '$_backupUrl$urlSuffix';
+        error.requestOptions.baseUrl = newBaseUrl;
+        handler.resolve(await dio.fetch(error.requestOptions));
+        log('Switching to the backup API URL', name: _tag);
+        _baseUrl = _backupUrl;
+        dio.options.baseUrl = newBaseUrl;
+        return true;
+      } on Exception catch (_) {}
+    }
+  }
+  return false;
 }
