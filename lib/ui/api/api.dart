@@ -236,10 +236,10 @@ Future<bool> attemptBackupUrl(Dio dio, DioException error, ErrorInterceptorHandl
     // no response from the server or filtered by the network
     log('No response from the server', name: _tag);
     // attempt to switch to the backup API URL if not already done
-    if (_baseUrl == _primaryUrl) {
+    var newBaseUrl = '$_backupUrl$urlSuffix';
+    if (_baseUrl == _primaryUrl && error.requestOptions.baseUrl != newBaseUrl) {
       try {
         log('Retrying request with backup API URL', name: _tag);
-        var newBaseUrl = '$_backupUrl$urlSuffix';
         error.requestOptions.baseUrl = newBaseUrl;
         handler.resolve(await dio.fetch(error.requestOptions));
         log('Switching to the backup API URL', name: _tag);
