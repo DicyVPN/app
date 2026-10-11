@@ -27,4 +27,11 @@ linter:
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 analyzer:
-  exclude: [lib/**.g.dart]
+  exclude:
+    - lib/**.g.dart
+    - build/**
+    - android/**
+    - ios/**
+    - windows/**
+    - macos/**
+    - linux/**
