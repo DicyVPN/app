@@ -31,7 +31,7 @@ if (flutterVersionName == null) {
 android {
     namespace "com.dicyvpn.android"
     compileSdk flutter.compileSdkVersion
-    ndkVersion "28.0.12433566"
+    ndkVersion "30.0.16248370"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
